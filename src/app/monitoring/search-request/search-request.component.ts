@@ -4,7 +4,7 @@ import { startWith, map, switchMap, tap } from 'rxjs/operators';
 import 'rxjs/add/observable/defer';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/operator/map';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -13,22 +13,33 @@ import { Observable } from 'rxjs/Observable';
   styles: []
 })
 export class SearchRequestComponent implements OnInit {
-  columnSelectionControl = new FormControl();
-  includeExcludeSelectionControl = new FormControl();
-  requestTypeSelectionControl = new FormControl();
-  termSelectionControl = new FormControl();
-  dateFromSelectionControl = new FormControl();
-  dateToSelectionControl = new FormControl();
+  searchForm: FormGroup;
 
   columns: ColumnDefinition[];
   terms: Observable<string[]>;
   filteredTerms: Observable<string[]>;
 
+  get columnSelectionControl(): FormControl { return <FormControl>this.searchForm.get('column'); }
+  get includeExcludeSelectionControl(): FormControl { return <FormControl>this.searchForm.get('includeExclude'); }
+  get requestTypeSelectionControl(): FormControl { return <FormControl>this.searchForm.get('requestType'); }
+  get termSelectionControl(): FormControl { return <FormControl>this.searchForm.get('term'); }
+  get dateFromSelectionControl(): FormControl { return <FormControl>this.searchForm.get('dateFrom'); }
+  get dateToSelectionControl(): FormControl { return <FormControl>this.searchForm.get('dateTo'); }
+
   _ColumnType = ColumnType;
 
-  constructor(private monitoringService: MonitoringService) { }
+  constructor(private fb: FormBuilder, private monitoringService: MonitoringService) { }
 
   ngOnInit() {
+    this.searchForm = this.fb.group({
+      column: '',
+      includeExclude: '',
+      requestType: '',
+      term: '',
+      dateFrom : '',
+      dateTo: ''
+    });
+
     this.columns = this.monitoringService.mapping();
 
     this.terms = Observable.defer(() => this.columnSelectionControl.valueChanges.pipe(
