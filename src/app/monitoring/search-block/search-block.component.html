@@ -1,0 +1,49 @@
+<mat-form-field>
+    <mat-select placeholder="field" [formControl]="columnSelectionControl">
+      <mat-option *ngFor="let column of columns" [value]="column.Name">{{ column.DisplayName }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field *ngIf="!!columnSelectionControl.value">
+    <mat-select placeholder="condition" [formControl]="includeExcludeSelectionControl">
+      <mat-option value="must">Must</mat-option>
+      <mat-option value="must_not">Must Not</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field *ngIf="!!columnSelectionControl.value && !!includeExcludeSelectionControl.value">
+    <mat-select placeholder="type" [formControl]="requestTypeSelectionControl">
+      <mat-option value="term" *ngIf="getColumnType() === _ColumnType.String">Term</mat-option>
+      <mat-option value="range">Range</mat-option>
+      <mat-option value="exists">Exists</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <ng-container *ngIf="!!columnSelectionControl.value && !!includeExcludeSelectionControl.value">
+    <ng-container *ngIf="requestTypeSelectionControl.value === 'term'">
+      <mat-form-field>
+        <input matInput type="text" [matAutocomplete]="auto" [formControl]="termSelectionControl">
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let term of filteredTerms | async" [value]="term">
+            {{ term }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </ng-container>
+
+    <ng-container *ngIf="requestTypeSelectionControl.value === 'range'">
+      <ng-container *ngIf="getColumnType() === _ColumnType.Date">
+        <mat-form-field>
+          <input matInput [matDatepicker]="from" placeholder="From" [formControl]="dateFromSelectionControl">
+          <mat-datepicker-toggle matSuffix [for]="from"></mat-datepicker-toggle>
+          <mat-datepicker #from></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field>
+          <input matInput [matDatepicker]="to" placeholder="To" [formControl]="dateToSelectionControl">
+          <mat-datepicker-toggle matSuffix [for]="to"></mat-datepicker-toggle>
+          <mat-datepicker #to></mat-datepicker>
+        </mat-form-field>
+      </ng-container>
+    </ng-container>
+  </ng-container>

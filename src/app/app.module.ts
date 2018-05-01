@@ -28,6 +28,7 @@ import { MonitoringService } from './monitoring/monitoring.service';
 import { DurationPipe } from './shared/duration.pipe';
 import { SearchRequestComponent } from './monitoring/search-request/search-request.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SearchBlockComponent } from './monitoring/search-block/search-block.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     DurationPipe,
     MatInput,
     SearchRequestComponent,
+    SearchBlockComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,63 +1,29 @@
-<mat-card>
-  <mat-card-title>
-    <mat-toolbar>Search</mat-toolbar>
-  </mat-card-title>
-  <mat-card-content>
-    <button mat-button>
-      <mat-icon>add</mat-icon>
-    </button>
-    <form class="form-horizontal" novalidate (ngSubmit)="search()" [formGroup]="searchForm">
-      <div class="form-group">
-        <mat-form-field>
-          <mat-select placeholder="field" formControlName="column">
-            <mat-option *ngFor="let column of columns" [value]="column.Name">{{ column.DisplayName }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+<form class="form-horizontal" novalidate (ngSubmit)="search()" [formGroup]="searchForm">
+  <mat-card>
+    <mat-card-title>
+      <mat-toolbar>Search</mat-toolbar>
+    </mat-card-title>
+    <mat-card-content>
+      <button mat-button (click)="addQueryBlock()" type="button">
+        <mat-icon>add</mat-icon>
+        Add
+      </button>
 
-        <mat-form-field *ngIf="!!columnSelectionControl.value">
-          <mat-select placeholder="condition" formControlName="includeExclude">
-            <mat-option value="must">Must</mat-option>
-            <mat-option value="must_not">Must Not</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field *ngIf="!!columnSelectionControl.value && !!includeExcludeSelectionControl.value">
-          <mat-select placeholder="type" formControlName="requestType">
-            <mat-option value="term" *ngIf="getColumnType() === _ColumnType.String">Term</mat-option>
-            <mat-option value="range">Range</mat-option>
-            <mat-option value="exists">Exists</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <ng-container *ngIf="!!columnSelectionControl.value && !!includeExcludeSelectionControl.value">
-          <ng-container *ngIf="requestTypeSelectionControl.value === 'term'">
-            <mat-form-field>
-              <input matInput type="text" [matAutocomplete]="auto" formControlName="term">
-              <mat-autocomplete #auto="matAutocomplete">
-                <mat-option *ngFor="let term of filteredTerms | async" [value]="term">
-                  {{ term }}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-          </ng-container>
-
-          <ng-container *ngIf="requestTypeSelectionControl.value === 'range'">
-            <ng-container *ngIf="getColumnType() === _ColumnType.Date">
-              <mat-form-field>
-                <input matInput [matDatepicker]="from" placeholder="From" formControlName="dateFrom">
-                <mat-datepicker-toggle matSuffix [for]="from"></mat-datepicker-toggle>
-                <mat-datepicker #from></mat-datepicker>
-              </mat-form-field>
-
-              <mat-form-field>
-                <input matInput [matDatepicker]="to" placeholder="To" formControlName="dateTo">
-                <mat-datepicker-toggle matSuffix [for]="to"></mat-datepicker-toggle>
-                <mat-datepicker #to></mat-datepicker>
-              </mat-form-field>
-            </ng-container>
-          </ng-container>
-        </ng-container>
+      <div formArrayName="queryBlocks" *ngFor="let queryBlock of queryBlocks.controls; let i=index">
+        <div class="form-group" [formGroupName]="i">
+          <mon-search-block></mon-search-block>
+          <button mat-button (click)="removeQueryBlock(i)" type="button">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
       </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button type="submit">
+        <mat-icon>search</mat-icon>
+        Search
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</form>
