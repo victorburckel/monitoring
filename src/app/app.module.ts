@@ -8,7 +8,16 @@ import {
   MatFormFieldModule,
   MatInput,
   MatSpinner,
-  MatProgressSpinnerModule } from '@angular/material';
+  MatProgressSpinnerModule,
+  MatCardModule,
+  MatAutocompleteModule,
+  MatDatepickerModule,
+  MatButtonModule,
+  MatIconModule,
+  MatSelectModule,
+  MatNativeDateModule,
+  MatChipsModule,
+  MatToolbarModule} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -17,7 +26,8 @@ import { AppComponent } from './app.component';
 import { WebserviceDocumentListComponent } from './monitoring/webservice-document-list/webservice-document-list.component';
 import { MonitoringService } from './monitoring/monitoring.service';
 import { DurationPipe } from './shared/duration.pipe';
-
+import { SearchRequestComponent } from './monitoring/search-request/search-request.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -25,6 +35,7 @@ import { DurationPipe } from './shared/duration.pipe';
     WebserviceDocumentListComponent,
     DurationPipe,
     MatInput,
+    SearchRequestComponent,
   ],
   imports: [
     BrowserModule,
@@ -35,7 +46,18 @@ import { DurationPipe } from './shared/duration.pipe';
     MatPaginatorModule,
     MatSortModule,
     MatFormFieldModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    MatNativeDateModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatChipsModule,
+    MatToolbarModule,
   ],
   providers: [MonitoringService],
   bootstrap: [AppComponent]
