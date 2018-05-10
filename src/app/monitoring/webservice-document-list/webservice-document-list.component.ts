@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import {MatPaginator, MatSort, MatTable} from '@angular/material';
-import { MonitoringService, ColumnDefinition } from '../monitoring.service';
+import { MonitoringService, ColumnDefinition, ColumnType } from '../monitoring.service';
 import { WebServiceDocument } from '../monitoring-document';
 import { startWith, switchMap, map, tap } from 'rxjs/operators';
 import { merge } from 'rxjs/observable/merge';
@@ -16,6 +16,8 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
   documents: WebServiceDocument[] = [];
   isLoadingResults = true;
   resultsLength = 0;
+
+  _ColumnType = ColumnType;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -36,7 +38,6 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
       }),
       map(data => {
         this.isLoadingResults = false;
-        console.log(data.total);
         this.resultsLength = data.total;
         return data.hits;
       })).subscribe(data => this.documents = data);

@@ -34,8 +34,6 @@ export class MonitoringService {
 
   columns(): ColumnDefinition[] {
     return [
-      { Name: 'id', DisplayName: 'Id', Type: ColumnType.String },
-      { Name: 'parentDocumentIdid', DisplayName: 'Parent Document', Type: ColumnType.String },
       { Name: 'submitted', DisplayName: 'Submitted', Type: ColumnType.Date },
       { Name: 'ended', DisplayName: 'Ended', Type: ColumnType.Date },
       { Name: 'duration', DisplayName: 'Duration', Type: ColumnType.Duration },
@@ -46,6 +44,8 @@ export class MonitoringService {
       { Name: 'client_hostname', DisplayName: 'Client Hostname', Type: ColumnType.String },
       { Name: 'input_size', DisplayName: 'Input Size', Type: ColumnType.StoreSize },
       { Name: 'output_size', DisplayName: 'Output Size', Type: ColumnType.StoreSize },
+      { Name: 'error', DisplayName: 'Error', Type: ColumnType.String },
+      { Name: 'after_send_error', DisplayName: 'After Send Error', Type: ColumnType.String },
     ];
   }
 

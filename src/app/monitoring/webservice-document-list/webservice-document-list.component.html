@@ -2,55 +2,19 @@
   <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
 
   <mat-table #table [dataSource]="documents" matSort>
-
-    <ng-container matColumnDef="id">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Id </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="submitted">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Submitted </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.submitted | date:'medium'}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="started">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Started </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.started | date:'medium'}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="ended">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Ended </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.ended | date:'medium'}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="status">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.status }} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="duration">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Duration </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.duration | duration:'s'}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="operation">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Operation </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.operation}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="service">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Service </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.service}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="client_application">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Client Application </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.client_application}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="client_hostname">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Client Hostname </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.client_hostname}} </mat-cell>
+      <ng-container [matColumnDef]="column.Name" *ngFor="let column of availableColumns">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> {{ column.DisplayName }} </mat-header-cell>
+        <ng-container [ngSwitch]="column.Type" >
+          <ng-container *ngSwitchCase="_ColumnType.Date">
+            <mat-cell *matCellDef="let element"> {{ element[column.Name] | date:'medium' }} </mat-cell>
+          </ng-container>
+          <ng-container *ngSwitchCase="_ColumnType.Duration">
+            <mat-cell *matCellDef="let element"> {{ element[column.Name] | duration:'s' }} </mat-cell>
+          </ng-container>
+          <ng-container *ngSwitchDefault>
+            <mat-cell *matCellDef="let element"> {{ element[column.Name] }} </mat-cell>
+          </ng-container>
+        </ng-container>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
