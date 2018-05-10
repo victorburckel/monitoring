@@ -12,12 +12,16 @@ export class MonitoringService {
 
   private url = 'http://localhost:9200';
 
-  search(sortColumn: ColumnDefinition, sortOrder: string, pageIndex: number, pageSize: number)
+  search(q: any, sortColumn: ColumnDefinition, sortOrder: string, pageIndex: number, pageSize: number)
   : Observable<{ total: number, hits: WebServiceDocument[] }> {
     const query: any = {
       from: pageIndex * pageSize,
       size: pageSize,
     };
+
+    if (q) {
+      query['query'] = { bool: JSON.parse(q) };
+    }
 
     if (sortColumn && sortOrder) {
       const sortCriteria = {};

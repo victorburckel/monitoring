@@ -6,6 +6,7 @@ import 'rxjs/add/observable/defer';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/operator/filter';
 import { ColumnDefinition, MonitoringService, ColumnType } from '../monitoring.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'mon-search-request',
@@ -23,7 +24,7 @@ export class SearchRequestComponent implements OnInit {
     return <FormArray>this.searchForm.get('queryBlocks');
   }
 
-  constructor(private monitoringService: MonitoringService, private fb: FormBuilder) {
+  constructor(private monitoringService: MonitoringService, private fb: FormBuilder, private router: Router) {
     this.availableColumns = this.monitoringService.columns();
   }
 
@@ -105,7 +106,7 @@ export class SearchRequestComponent implements OnInit {
 
   toJSON(): any {
     const result = {
-      must: [],
+      filter: [],
       must_not: []
     };
 
@@ -127,7 +128,7 @@ export class SearchRequestComponent implements OnInit {
       const query = {};
       query[queryBlock.get('requestType').value] = q;
       if (queryBlock.get('includeExclude').value === 'must') {
-        result.must.push(query);
+        result.filter.push(query);
       } else {
         result.must_not.push(query);
       }
@@ -137,7 +138,7 @@ export class SearchRequestComponent implements OnInit {
   }
 
   search() {
-    console.log(this.toJSON());
+    this.router.navigate(['/documentlist', { query: JSON.stringify(this.toJSON()) }]);
   }
 }
 

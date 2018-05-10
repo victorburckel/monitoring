@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import { startWith, switchMap, map, tap, debounceTime, catchError } from 'rxjs/operators';
 import 'rxjs/add/observable/of';
 import { merge } from 'rxjs/observable/merge';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 
 @Component({
   selector: 'mon-webservice-document-list',
@@ -35,7 +36,7 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private monitoringService: MonitoringService) { }
+  constructor(private monitoringService: MonitoringService, private route: ActivatedRoute) { }
 
   ngOnInit() {
     this.availableColumns = this.monitoringService.columns();
@@ -47,12 +48,16 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    merge(this.sort.sortChange, this.paginator.page).pipe(
+    merge(this.sort.sortChange, this.paginator.page, this.route.paramMap).pipe(
       startWith({}),
       switchMap(() => {
         this.isLoadingResults = true;
         return this.monitoringService.search(
-          this.sortColumn, this.sort.direction, this.paginator.pageIndex, this.paginator.pageSize);
+          this.route.snapshot.paramMap.get('query'),
+          this.sortColumn,
+          this.sort.direction,
+          this.paginator.pageIndex,
+          this.paginator.pageSize);
       }),
       catchError(() => {
         return Observable.of({ total: 0, hits: [] });
