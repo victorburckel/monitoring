@@ -16,7 +16,6 @@ import {
   MatIconModule,
   MatSelectModule,
   MatNativeDateModule,
-  MatChipsModule,
   MatToolbarModule} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -57,7 +56,6 @@ import { HttpClientModule } from '@angular/common/http';
     MatNativeDateModule,
     FormsModule,
     ReactiveFormsModule,
-    MatChipsModule,
     MatToolbarModule,
     HttpClientModule
   ],

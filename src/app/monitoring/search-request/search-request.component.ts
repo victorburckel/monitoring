@@ -15,7 +15,6 @@ import { ColumnDefinition, MonitoringService, ColumnType } from '../monitoring.s
 export class SearchRequestComponent implements OnInit {
   searchForm: FormGroup;
   availableColumns: ColumnDefinition[];
-  terms: Observable<string[]>[] = [];
   filteredTerms: Observable<string[]>[] = [];
 
   _ColumnType = ColumnType;
@@ -48,35 +47,33 @@ export class SearchRequestComponent implements OnInit {
     });
   }
 
-  control(name: string, index: number): FormControl {
-    return <FormControl>this.queryBlocks.at(index).get(name);
-  }
-
   addQueryBlock(): void {
-    this.queryBlocks.push(this.buildQueryBlock());
+    const queryBlock = this.buildQueryBlock();
+    this.queryBlocks.push(queryBlock);
 
-    const index = this.queryBlocks.length - 1;
-
-    this.terms.push(Observable.defer(() => this.control('column', index).valueChanges.pipe(
-      startWith(this.control('column', index).value),
+    const terms = Observable.defer(() => queryBlock.get('column').valueChanges.pipe(
+      startWith(queryBlock.get('column').value),
       switchMap(field => this.monitoringService.terms(field)),
-    )));
+    ));
 
     this.filteredTerms.push(Observable.combineLatest(
-      this.terms[index],
-      this.control('term', index).valueChanges.pipe(startWith('')),
-      (terms, value) => ({ Terms: terms, Value: value })
+      terms,
+      queryBlock.get('term').valueChanges.pipe(startWith('')),
+      (t, v) => ({ Terms: t, Value: v })
     ).pipe(
       map(x => x.Terms.filter(term => term.toLowerCase().indexOf(x.Value.toLowerCase()) === 0))
     ));
 
-    this.control('requestType', index).valueChanges.subscribe(x => this.setRequestType(x, index));
+    queryBlock.get('requestType').valueChanges.subscribe(x => this.setRequestType(x, queryBlock));
   }
 
   removeQueryBlock(index: number) {
-    this.terms.splice(index, 1);
     this.filteredTerms.splice(index, 1);
     this.queryBlocks.removeAt(index);
+  }
+
+  control(name: string, index: number): FormControl {
+    return <FormControl>this.queryBlocks.at(index).get(name);
   }
 
   getColumnType(index: number): ColumnType {
@@ -87,23 +84,23 @@ export class SearchRequestComponent implements OnInit {
     return undefined;
   }
 
-  setRequestType(requestType: string, index: number) {
-    this.control('term', index).clearValidators();
-    this.control('dateRange', index).clearValidators();
+  setRequestType(requestType: string, queryBlock: FormGroup) {
+    queryBlock.get('term').clearValidators();
+    queryBlock.get('dateRange').clearValidators();
 
     switch (requestType) {
       case 'term':
-      this.control('term', index).setValidators(Validators.required);
+      queryBlock.get('term').setValidators(Validators.required);
       break;
       case 'range':
-      this.control('dateRange', index).setValidators([
+      queryBlock.get('dateRange').setValidators([
           Validators.required,
-           dateRangeValidation(this.control('dateRange.from', index), this.control('dateRange.to', index))]);
+           dateRangeValidation(queryBlock.get('dateRange.from'), queryBlock.get('dateRange.to'))]);
         break;
     }
 
-    this.control('term', index).updateValueAndValidity();
-    this.control('dateRange', index).updateValueAndValidity();
+    queryBlock.get('term').updateValueAndValidity();
+    queryBlock.get('dateRange').updateValueAndValidity();
   }
 
   toJSON(): any {
