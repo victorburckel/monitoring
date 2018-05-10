@@ -3,7 +3,9 @@ import {MatPaginator, MatSort, MatTable} from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { MonitoringService, ColumnDefinition, ColumnType } from '../monitoring.service';
 import { WebServiceDocument } from '../monitoring-document';
-import { startWith, switchMap, map, tap, debounceTime } from 'rxjs/operators';
+import { Observable } from 'rxjs/Observable';
+import { startWith, switchMap, map, tap, debounceTime, catchError } from 'rxjs/operators';
+import 'rxjs/add/observable/of';
 import { merge } from 'rxjs/observable/merge';
 
 @Component({
@@ -51,6 +53,9 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
         this.isLoadingResults = true;
         return this.monitoringService.search(
           this.sortColumn, this.sort.direction, this.paginator.pageIndex, this.paginator.pageSize);
+      }),
+      catchError(() => {
+        return Observable.of({ total: 0, hits: [] });
       }),
       map(data => {
         this.isLoadingResults = false;

@@ -19,7 +19,7 @@ export class MonitoringService {
       size: pageSize,
     };
 
-    if (sortColumn) {
+    if (sortColumn && sortOrder) {
       const sortCriteria = {};
       if (sortColumn.Type === ColumnType.String) {
         sortCriteria[`${sortColumn.Name}.keyword`] = { order: sortOrder };

@@ -1,45 +1,49 @@
-<div class="example-container mat-elevation-z8">
+<mat-card>
+  <mat-card-title>
+    <mat-toolbar>Result</mat-toolbar>
+  </mat-card-title>
+  <mat-card-content>
+    <div>
+      <mat-form-field>
+        <mat-select placeholder="Columns" [formControl]="displayedColumnsControl" multiple>
+          <mat-select-trigger>
+            {{displayedColumnsControl.value ? displayedColumnsControl.value[0].DisplayName : ''}}
+            <span *ngIf="displayedColumnsControl.value?.length > 1" class="example-additional-selection">
+              (+{{displayedColumnsControl.value.length - 1}} others)
+            </span>
+          </mat-select-trigger>
+          <mat-option *ngFor="let column of availableColumns" [value]="column">{{ column.DisplayName }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
 
-  <div>
-    <mat-form-field>
-      <mat-select placeholder="Columns" [formControl]="displayedColumnsControl" multiple>
-        <mat-select-trigger>
-          {{displayedColumnsControl.value ? displayedColumnsControl.value[0].DisplayName : ''}}
-          <span *ngIf="displayedColumnsControl.value?.length > 1" class="example-additional-selection">
-            (+{{displayedColumnsControl.value.length - 1}} others)
-          </span>
-        </mat-select-trigger>
-        <mat-option *ngFor="let column of availableColumns" [value]="column">{{ column.DisplayName }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-  <div>
-    <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
+      <mat-table #table [dataSource]="documents" matSort>
+          <ng-container [matColumnDef]="column.Name" *ngFor="let column of availableColumns">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.DisplayName }}</mat-header-cell>
+            <ng-container [ngSwitch]="column.Type" >
+              <ng-container *ngSwitchCase="_ColumnType.Date">
+                <mat-cell *matCellDef="let element">{{ element[column.Name] | date:'medium' }}</mat-cell>
+              </ng-container>
+              <ng-container *ngSwitchCase="_ColumnType.Duration">
+                <mat-cell *matCellDef="let element">{{ element[column.Name] | duration:'s' }}</mat-cell>
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                <mat-cell *matCellDef="let element">{{ element[column.Name] }}</mat-cell>
+              </ng-container>
+            </ng-container>
+        </ng-container>
 
-    <mat-table #table [dataSource]="documents" matSort>
-        <ng-container [matColumnDef]="column.Name" *ngFor="let column of availableColumns">
-          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.DisplayName }}</mat-header-cell>
-          <ng-container [ngSwitch]="column.Type" >
-            <ng-container *ngSwitchCase="_ColumnType.Date">
-              <mat-cell *matCellDef="let element">{{ element[column.Name] | date:'medium' }}</mat-cell>
-            </ng-container>
-            <ng-container *ngSwitchCase="_ColumnType.Duration">
-              <mat-cell *matCellDef="let element">{{ element[column.Name] | duration:'s' }}</mat-cell>
-            </ng-container>
-            <ng-container *ngSwitchDefault>
-              <mat-cell *matCellDef="let element">{{ element[column.Name] }}</mat-cell>
-            </ng-container>
-          </ng-container>
-      </ng-container>
-
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-    </mat-table>
-    <mat-paginator #paginator
-      [length]="resultsLength"
-      [pageSize]="5"
-      [pageSizeOptions]="[5, 10, 20]"
-      [showFirstLastButtons]="true">
-    </mat-paginator>
-  </div>
-</div>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+      <mat-paginator #paginator
+        [length]="resultsLength"
+        [pageSize]="5"
+        [pageSizeOptions]="[5, 10, 20]"
+        [showFirstLastButtons]="true">
+      </mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>
