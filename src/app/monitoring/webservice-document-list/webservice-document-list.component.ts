@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import {MatPaginator, MatTableDataSource, MatSort, MatTable} from '@angular/material';
-import { MonitoringService } from '../monitoring.service';
+import {MatPaginator, MatSort, MatTable} from '@angular/material';
+import { MonitoringService, ColumnDefinition } from '../monitoring.service';
 import { WebServiceDocument } from '../monitoring-document';
+import { startWith, switchMap, map, tap } from 'rxjs/operators';
+import { merge } from 'rxjs/observable/merge';
 
 @Component({
   selector: 'mon-webservice-document-list',
@@ -9,9 +11,9 @@ import { WebServiceDocument } from '../monitoring-document';
   styleUrls: ['./webservice-document-list.component.css']
 })
 export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
-
+  availableColumns: ColumnDefinition[];
   displayedColumns = ['client_application', 'submitted', 'ended', 'duration', 'status', 'operation'];
-  dataSource = new MatTableDataSource<WebServiceDocument>();
+  documents: WebServiceDocument[] = [];
   isLoadingResults = true;
   resultsLength = 0;
 
@@ -21,15 +23,22 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
   constructor(private monitoringService: MonitoringService) { }
 
   ngOnInit() {
-    this.monitoringService.search('').subscribe(docs => {
-      this.resultsLength = docs.length;
-      this.dataSource.data = docs;
-      this.isLoadingResults = false;
-    });
+    this.availableColumns = this.monitoringService.columns();
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    merge(this.sort.sortChange, this.paginator.page).pipe(
+      startWith({}),
+      switchMap(() => {
+        this.isLoadingResults = true;
+        return this.monitoringService.search(
+          this.sort.active, this.sort.direction, this.paginator.pageIndex, this.paginator.pageSize);
+      }),
+      map(data => {
+        this.isLoadingResults = false;
+        console.log(data.total);
+        this.resultsLength = data.total;
+        return data.hits;
+      })).subscribe(data => this.documents = data);
   }
 }

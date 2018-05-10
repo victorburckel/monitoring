@@ -28,11 +28,11 @@ export class SearchBlockComponent implements OnInit {
   constructor(private monitoringService: MonitoringService) { }
 
   ngOnInit() {
-    this.columns = this.monitoringService.mapping();
+    this.columns = this.monitoringService.columns();
 
     this.terms = Observable.defer(() => this.columnSelectionControl.valueChanges.pipe(
       startWith(this.columnSelectionControl.value),
-      switchMap(field => this.monitoringService.listValues(field)),
+      switchMap(field => this.monitoringService.terms(field)),
     ));
 
     this.filteredTerms = Observable.combineLatest(

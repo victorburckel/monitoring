@@ -1,0 +1,18 @@
+{ "create" : { "_index" : "monitoring", "_type" : "doc", "_id" : "1" } }
+{ "type": "webservice", "submitted": "2018-04-21T15:50:00", "ended": "2018-04-21T15:50:15",	"duration": 15000, "status": "success", "service": "Pricing", "operation": "price", "client_application": "my-appli", "client_hostname": "my-host", "input_size": 100, "output_size": 200 }
+{ "create" : { "_index" : "monitoring", "_type" : "doc", "_id" : "2" } }
+{ "type": "webservice", "submitted": "2018-04-21T15:50:05", "ended": "2018-04-21T15:50:10",	"duration": 5000, "status": "success", "service": "Pricing", "operation": "price_multiple", "client_application": "IWF", "client_hostname": "localhost", "input_size": 50, "output_size": 1000 }
+{ "create" : { "_index" : "monitoring", "_type" : "doc", "_id" : "3" } }
+{ "type": "webservice", "submitted": "2018-04-21T15:15:00", "ended": "2018-04-21T15:15:01",	"duration": 1000, "status": "error", "service": "Volatility", "operation": "interpolate", "client_application": "my-appli", "client_hostname": "my-host", "input_size": 30, "output_size": 10, "error": "invalid input" }
+{ "create" : { "_index" : "monitoring", "_type" : "doc", "_id" : "4" } }
+{ "type": "webservice", "submitted": "2018-04-21T15:50:00", "ended": "2018-04-21T15:50:15",	"duration": 15000, "status": "error", "service": "Utilities", "operation": "forward_spot", "client_application": "Cascade", "client_hostname": "my-server", "input_size": 30, "output_size": 150, "after_send_error": "client disconnected" }
+{ "create" : { "_index" : "monitoring", "_type" : "doc", "_id" : "5" } }
+{ "type": "webservice", "submitted": "2018-04-21T15:51:00", "ended": "2018-04-21T15:51:15",	"duration": 15000, "status": "success", "service": "Pricing", "operation": "price", "client_application": "my-appli", "client_hostname": "my-host", "input_size": 100, "output_size": 200 }
+{ "create" : { "_index" : "monitoring", "_type" : "doc", "_id" : "6" } }
+{ "type": "webservice", "submitted": "2018-04-21T16:30:00", "ended": "2018-04-21T16:31:00",	"duration": 60000, "status": "success", "service": "Pricing", "operation": "price", "client_application": "IWF", "client_hostname": "localhost", "input_size": 50, "output_size": 30 }
+{ "create" : { "_index" : "monitoring", "_type" : "doc", "_id" : "7" } }
+{ "type": "webservice", "submitted": "2018-04-21T15:30:00", "ended": "2018-04-21T15:30:10",	"duration": 10000, "status": "success", "service": "Pricing", "operation": "price", "client_application": "IWF", "client_hostname": "my-server", "input_size": 100, "output_size": 200 }
+{ "create" : { "_index" : "monitoring", "_type" : "doc", "_id" : "8" } }
+{ "type": "webservice", "submitted": "2018-04-21T15:52:07", "ended": "2018-04-21T15:52:15",	"duration": 8000, "status": "error", "service": "Utilities", "operation": "forward_spot", "client_application": "my-appli", "client_hostname": "my-host", "input_size": 100, "output_size": 200, "after_send_error": "client disconnected" }
+{ "create" : { "_index" : "monitoring", "_type" : "doc", "_id" : "9" } }
+{ "type": "webservice", "submitted": "2018-04-21T14:50:00", "ended": "2018-04-21T14:50:20",	"duration": 20000, "status": "error", "service": "Pricing", "operation": "price", "client_application": "Cascade", "client_hostname": "my-server", "input_size": 100, "output_size": 200, "error": "invalid operation" }

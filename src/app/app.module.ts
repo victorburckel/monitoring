@@ -29,6 +29,7 @@ import { DurationPipe } from './shared/duration.pipe';
 import { SearchRequestComponent } from './monitoring/search-request/search-request.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SearchBlockComponent } from './monitoring/search-block/search-block.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { SearchBlockComponent } from './monitoring/search-block/search-block.com
     ReactiveFormsModule,
     MatChipsModule,
     MatToolbarModule,
+    HttpClientModule
   ],
   providers: [MonitoringService],
   bootstrap: [AppComponent]

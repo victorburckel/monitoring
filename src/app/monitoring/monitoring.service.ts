@@ -1,27 +1,38 @@
 import { Injectable } from '@angular/core';
-import { WebServiceDocument, PricingDocument } from './monitoring-document';
+import { HttpClient } from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/delay';
+import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/map';
+import { WebServiceDocument, PricingDocument } from './monitoring-document';
 
 @Injectable()
 export class MonitoringService {
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
-  search(term: string): Observable<WebServiceDocument[]> {
-    return Observable.of(webServiceDocuments).delay(1000);
+  private url = 'http://localhost:9200';
+
+  search(sortColumn: string, sortOrder: string, pageIndex: number, pageSize: number)
+  : Observable<{ total: number, hits: WebServiceDocument[] }> {
+    const query: any = {
+      from: pageIndex * pageSize,
+      size: pageSize,
+    };
+
+    if (sortColumn) {
+      const sortCriteria = {};
+      sortCriteria[`${sortColumn}.keyword`] = { order: sortOrder };
+      query.sort = sortCriteria;
+    }
+
+    return this.http.post<any>(`${this.url}/monitoring/_search`, query)
+      .map(x => ({
+        total: x.hits.total,
+        hits: x.hits.hits.map(h => h._source)
+      }));
   }
 
-  get(id: string): WebServiceDocument {
-    return webServiceDocuments.find(doc => doc.id === id);
-  }
-
-  getSubDocuemnts(id: string): PricingDocument[] {
-    return pricingDocuments.filter(doc => doc.parentDocumentId = id);
-  }
-
-  mapping(): ColumnDefinition[] {
+  columns(): ColumnDefinition[] {
     return [
       { Name: 'id', DisplayName: 'Id', Type: ColumnType.String },
       { Name: 'parentDocumentIdid', DisplayName: 'Parent Document', Type: ColumnType.String },
@@ -38,14 +49,17 @@ export class MonitoringService {
     ];
   }
 
-  listValues(term: string): Observable<string[]> {
-    if (term === 'client_application') {
-      return Observable.of(['IWF', 'Cascade', 'MLP']).delay(1000);
-    } else if (term === 'client_hostname') {
-      return Observable.of(['MyHost', 'LocalHost', 'Workstation']).delay(2000);
-    }
-
-    return Observable.of([]);
+  terms(column: string): Observable<string[]> {
+    const query = {
+      aggs: {
+        agg: {
+          terms: { field: column }
+        }
+      }
+    };
+    return this.http.post<any>(`${this.url}/monitoring/_search`, query)
+      .do(x => console.log(x))
+      .map(x => x.result);
   }
 
 }
@@ -62,34 +76,3 @@ export interface ColumnDefinition {
   DisplayName: string;
   Type: ColumnType;
 }
-
-const webServiceDocuments: WebServiceDocument[] = [
-  {
-    id: '1',
-    parentDocumentId: undefined,
-    submitted: new Date('2018-04-21T15:50:00'),
-    ended: new Date('2018-04-21T15:50:15'),
-    duration: 15000,
-    status: 'success',
-    service: 'Pricing',
-    operation: 'price',
-    client_application: 'my-appli',
-    client_hostname: 'my-host',
-    input_size: 100,
-    output_size: 200
-  }
-];
-
-const pricingDocuments: PricingDocument[] = [
-  {
-    id: '10',
-    parentDocumentId: '1',
-    submitted: new Date('2018-04-21T15:50:10'),
-    ended: new Date('2018-04-21T15:50:14'),
-    duration: 4000,
-    status: 'success',
-    pricer: 'Grid',
-    sessionId: 50,
-    taskId: 100
-  }
-];
