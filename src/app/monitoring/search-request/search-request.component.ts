@@ -106,8 +106,41 @@ export class SearchRequestComponent implements OnInit {
     this.control('dateRange', index).updateValueAndValidity();
   }
 
+  toJSON(): any {
+    const result = {
+      must: [],
+      must_not: []
+    };
+
+    for (const queryBlock of this.queryBlocks.controls) {
+      const q = {};
+
+      const requestType = queryBlock.get('requestType').value;
+      if (requestType === 'term') {
+        q[queryBlock.get('column').value] = queryBlock.get('term').value;
+      } else if (requestType === 'range') {
+        q[queryBlock.get('column').value] = {
+          gt: queryBlock.get('dateRange.from').value,
+          lt: queryBlock.get('dateRange.to').value,
+        };
+      } else if (requestType === 'exists') {
+        q['field'] = queryBlock.get('column').value;
+      }
+
+      const query = {};
+      query[queryBlock.get('requestType').value] = q;
+      if (queryBlock.get('includeExclude').value === 'must') {
+        result.must.push(query);
+      } else {
+        result.must_not.push(query);
+      }
+    }
+
+    return result;
+  }
+
   search() {
-    console.log('search');
+    console.log(this.toJSON());
   }
 }
 
