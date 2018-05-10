@@ -58,13 +58,13 @@ export class MonitoringService {
     const query = {
       aggs: {
         agg: {
-          terms: { field: column }
+          terms: { field: `${column}.keyword` }
         }
-      }
+      },
+      size: 0
     };
     return this.http.post<any>(`${this.url}/monitoring/_search`, query)
-      .do(x => console.log(x))
-      .map(x => x.result);
+      .map(x => x.aggregations.agg.buckets.map(a => a.key));
   }
 
 }
