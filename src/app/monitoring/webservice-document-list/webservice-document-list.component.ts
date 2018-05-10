@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import {MatPaginator, MatSort, MatTable} from '@angular/material';
+import { FormControl } from '@angular/forms';
 import { MonitoringService, ColumnDefinition, ColumnType } from '../monitoring.service';
 import { WebServiceDocument } from '../monitoring-document';
-import { startWith, switchMap, map, tap } from 'rxjs/operators';
+import { startWith, switchMap, map, tap, debounceTime } from 'rxjs/operators';
 import { merge } from 'rxjs/observable/merge';
 
 @Component({
@@ -17,6 +18,16 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
   isLoadingResults = true;
   resultsLength = 0;
 
+  displayedColumnsControl: FormControl;
+
+  get sortColumn(): ColumnDefinition {
+    if (this.sort.active) {
+      return this.availableColumns.find(x => x.Name === this.sort.active);
+    }
+
+    return undefined;
+  }
+
   _ColumnType = ColumnType;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -26,6 +37,11 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.availableColumns = this.monitoringService.columns();
+    this.displayedColumnsControl = new FormControl(this.availableColumns.filter(x => this.displayedColumns.includes(x.Name)));
+
+    this.displayedColumnsControl.valueChanges.pipe(
+      debounceTime(1000)
+    ).subscribe(() => this.displayedColumns = this.displayedColumnsControl.value.map( x => x.Name));
   }
 
   ngAfterViewInit() {
@@ -34,7 +50,7 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
       switchMap(() => {
         this.isLoadingResults = true;
         return this.monitoringService.search(
-          this.sort.active, this.sort.direction, this.paginator.pageIndex, this.paginator.pageSize);
+          this.sortColumn, this.sort.direction, this.paginator.pageIndex, this.paginator.pageSize);
       }),
       map(data => {
         this.isLoadingResults = false;

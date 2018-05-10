@@ -12,7 +12,7 @@ export class MonitoringService {
 
   private url = 'http://localhost:9200';
 
-  search(sortColumn: string, sortOrder: string, pageIndex: number, pageSize: number)
+  search(sortColumn: ColumnDefinition, sortOrder: string, pageIndex: number, pageSize: number)
   : Observable<{ total: number, hits: WebServiceDocument[] }> {
     const query: any = {
       from: pageIndex * pageSize,
@@ -21,7 +21,12 @@ export class MonitoringService {
 
     if (sortColumn) {
       const sortCriteria = {};
-      sortCriteria[`${sortColumn}.keyword`] = { order: sortOrder };
+      if (sortColumn.Type === ColumnType.String) {
+        sortCriteria[`${sortColumn.Name}.keyword`] = { order: sortOrder };
+      } else {
+        sortCriteria[`${sortColumn.Name}`] = { order: sortOrder };
+      }
+
       query.sort = sortCriteria;
     }
 
