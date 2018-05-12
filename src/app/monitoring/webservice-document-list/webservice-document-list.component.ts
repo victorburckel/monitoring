@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import {MatPaginator, MatSort, MatTable} from '@angular/material';
 import { FormControl } from '@angular/forms';
-import { MonitoringService, ColumnDefinition, ColumnType } from '../monitoring.service';
+import { MonitoringService, FieldDefinition, FieldType } from '../monitoring.service';
 import { WebServiceDocument } from '../monitoring-document';
 import { Observable } from 'rxjs/Observable';
 import { startWith, switchMap, map, tap, debounceTime, catchError } from 'rxjs/operators';
@@ -15,23 +15,15 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
   styleUrls: ['./webservice-document-list.component.css']
 })
 export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
-  availableColumns: ColumnDefinition[];
-  displayedColumns = ['client_application', 'submitted', 'ended', 'duration', 'status', 'operation'];
+  availableColumns: FieldDefinition[];
+  displayedColumns: string [];
   documents: WebServiceDocument[] = [];
   isLoadingResults = true;
   resultsLength = 0;
 
   displayedColumnsControl: FormControl;
 
-  get sortColumn(): ColumnDefinition {
-    if (this.sort.active) {
-      return this.availableColumns.find(x => x.Name === this.sort.active);
-    }
-
-    return undefined;
-  }
-
-  _ColumnType = ColumnType;
+  _FieldType = FieldType;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -39,12 +31,15 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
   constructor(private monitoringService: MonitoringService, private route: ActivatedRoute) { }
 
   ngOnInit() {
-    this.availableColumns = this.monitoringService.columns();
-    this.displayedColumnsControl = new FormControl(this.availableColumns.filter(x => this.displayedColumns.includes(x.Name)));
+    this.availableColumns = this.monitoringService.fields();
+    this.displayedColumns = this.availableColumns
+      .filter(x => ['client_application', 'submitted', 'ended', 'duration', 'status', 'operation'].includes(x.Name))
+      .map(x => x.RequestName);
+    this.displayedColumnsControl = new FormControl(this.availableColumns.filter(x => this.displayedColumns.includes(x.RequestName)));
 
     this.displayedColumnsControl.valueChanges.pipe(
       debounceTime(1000)
-    ).subscribe(() => this.displayedColumns = this.displayedColumnsControl.value.map( x => x.Name));
+    ).subscribe(() => this.displayedColumns = this.displayedColumnsControl.value.map( x => x.RequestName));
   }
 
   ngAfterViewInit() {
@@ -54,7 +49,7 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
         this.isLoadingResults = true;
         return this.monitoringService.search(
           this.route.snapshot.paramMap.get('query'),
-          this.sortColumn,
+          this.sort.active,
           this.sort.direction,
           this.paginator.pageIndex,
           this.paginator.pageSize);

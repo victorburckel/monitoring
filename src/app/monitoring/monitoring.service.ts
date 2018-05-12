@@ -12,7 +12,7 @@ export class MonitoringService {
 
   private url = 'http://localhost:9200';
 
-  search(q: any, sortColumn: ColumnDefinition, sortOrder: string, pageIndex: number, pageSize: number)
+  search(q: any, sortColumn: string, sortOrder: string, pageIndex: number, pageSize: number)
   : Observable<{ total: number, hits: WebServiceDocument[] }> {
     const query: any = {
       from: pageIndex * pageSize,
@@ -25,12 +25,7 @@ export class MonitoringService {
 
     if (sortColumn && sortOrder) {
       const sortCriteria = {};
-      if (sortColumn.Type === ColumnType.String) {
-        sortCriteria[`${sortColumn.Name}.keyword`] = { order: sortOrder };
-      } else {
-        sortCriteria[`${sortColumn.Name}`] = { order: sortOrder };
-      }
-
+      sortCriteria[sortColumn] = { order: sortOrder };
       query.sort = sortCriteria;
     }
 
@@ -41,20 +36,20 @@ export class MonitoringService {
       }));
   }
 
-  columns(): ColumnDefinition[] {
+  fields(): FieldDefinition[] {
     return [
-      { Name: 'submitted', DisplayName: 'Submitted', Type: ColumnType.Date },
-      { Name: 'ended', DisplayName: 'Ended', Type: ColumnType.Date },
-      { Name: 'duration', DisplayName: 'Duration', Type: ColumnType.Duration },
-      { Name: 'status', DisplayName: 'Status', Type: ColumnType.String },
-      { Name: 'service', DisplayName: 'Service', Type: ColumnType.String },
-      { Name: 'operation', DisplayName: 'Operation', Type: ColumnType.String },
-      { Name: 'client_application', DisplayName: 'Client Application', Type: ColumnType.String },
-      { Name: 'client_hostname', DisplayName: 'Client Hostname', Type: ColumnType.String },
-      { Name: 'input_size', DisplayName: 'Input Size', Type: ColumnType.StoreSize },
-      { Name: 'output_size', DisplayName: 'Output Size', Type: ColumnType.StoreSize },
-      { Name: 'error', DisplayName: 'Error', Type: ColumnType.String },
-      { Name: 'after_send_error', DisplayName: 'After Send Error', Type: ColumnType.String },
+      { Name: 'submitted', RequestName: 'submitted', DisplayName: 'Submitted', Type: FieldType.Date },
+      { Name: 'ended', RequestName: 'ended', DisplayName: 'Ended', Type: FieldType.Date },
+      { Name: 'duration', RequestName: 'duration', DisplayName: 'Duration', Type: FieldType.Duration },
+      { Name: 'status', RequestName: 'status.keyword', DisplayName: 'Status', Type: FieldType.String },
+      { Name: 'service', RequestName: 'service.keyword', DisplayName: 'Service', Type: FieldType.String },
+      { Name: 'operation', RequestName: 'operation.keyword', DisplayName: 'Operation', Type: FieldType.String },
+      { Name: 'client_application', RequestName: 'client_application.keyword', DisplayName: 'Client Application', Type: FieldType.String },
+      { Name: 'client_hostname', RequestName: 'client_hostname.keyword', DisplayName: 'Client Hostname', Type: FieldType.String },
+      { Name: 'input_size', RequestName: 'input_size', DisplayName: 'Input Size', Type: FieldType.StoreSize },
+      { Name: 'output_size', RequestName: 'output_size', DisplayName: 'Output Size', Type: FieldType.StoreSize },
+      { Name: 'error', RequestName: 'error.keyword', DisplayName: 'Error', Type: FieldType.String },
+      { Name: 'after_send_error', RequestName: 'after_send_error.keyword', DisplayName: 'After Send Error', Type: FieldType.String },
     ];
   }
 
@@ -62,7 +57,7 @@ export class MonitoringService {
     const query = {
       aggs: {
         agg: {
-          terms: { field: `${column}.keyword` }
+          terms: { field: column }
         }
       },
       size: 0
@@ -73,15 +68,16 @@ export class MonitoringService {
 
 }
 
-export enum ColumnType {
+export enum FieldType {
   String,
   Date,
   Duration,
   StoreSize
 }
 
-export interface ColumnDefinition {
+export interface FieldDefinition {
   Name: string;
+  RequestName: string;
   DisplayName: string;
-  Type: ColumnType;
+  Type: FieldType;
 }

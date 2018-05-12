@@ -5,7 +5,7 @@ import { startWith, map, switchMap, tap } from 'rxjs/operators';
 import 'rxjs/add/observable/defer';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/operator/filter';
-import { ColumnDefinition, MonitoringService, ColumnType } from '../monitoring.service';
+import { FieldDefinition, MonitoringService, FieldType } from '../monitoring.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -15,17 +15,17 @@ import { Router } from '@angular/router';
 })
 export class SearchRequestComponent implements OnInit {
   searchForm: FormGroup;
-  availableColumns: ColumnDefinition[];
+  availableColumns: FieldDefinition[];
   filteredTerms: Observable<string[]>[] = [];
 
-  _ColumnType = ColumnType;
+  _FieldType = FieldType;
 
   get queryBlocks(): FormArray {
     return <FormArray>this.searchForm.get('queryBlocks');
   }
 
   constructor(private monitoringService: MonitoringService, private fb: FormBuilder, private router: Router) {
-    this.availableColumns = this.monitoringService.columns();
+    this.availableColumns = this.monitoringService.fields();
   }
 
   ngOnInit() {
@@ -54,7 +54,7 @@ export class SearchRequestComponent implements OnInit {
 
     const terms = Observable.defer(() => queryBlock.get('column').valueChanges.pipe(
       startWith(queryBlock.get('column').value),
-      switchMap(field => this.monitoringService.terms(field)),
+      switchMap((field: FieldDefinition) => this.monitoringService.terms(field.RequestName)),
     ));
 
     this.filteredTerms.push(Observable.combineLatest(
@@ -75,14 +75,6 @@ export class SearchRequestComponent implements OnInit {
 
   control(name: string, index: number): FormControl {
     return <FormControl>this.queryBlocks.at(index).get(name);
-  }
-
-  getColumnType(index: number): ColumnType {
-    if (this.control('column', index).value) {
-      return this.availableColumns.find(x => x.Name === this.control('column', index).value).Type;
-    }
-
-    return undefined;
   }
 
   setRequestType(requestType: string, queryBlock: FormGroup) {
@@ -114,15 +106,17 @@ export class SearchRequestComponent implements OnInit {
       const q = {};
 
       const requestType = queryBlock.get('requestType').value;
+      const field = queryBlock.get('column').value.RequestName;
+
       if (requestType === 'term') {
-        q[queryBlock.get('column').value] = queryBlock.get('term').value;
+        q[field] = queryBlock.get('term').value;
       } else if (requestType === 'range') {
-        q[queryBlock.get('column').value] = {
+        q[field] = {
           gt: queryBlock.get('dateRange.from').value,
           lt: queryBlock.get('dateRange.to').value,
         };
       } else if (requestType === 'exists') {
-        q['field'] = queryBlock.get('column').value;
+        q['field'] = field;
       }
 
       const query = {};

@@ -28,6 +28,7 @@ import { DurationPipe } from './shared/duration.pipe';
 import { SearchRequestComponent } from './monitoring/search-request/search-request.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { StoreSizePipe } from './shared/store-size.pipe';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { HttpClientModule } from '@angular/common/http';
     WebserviceDocumentListComponent,
     DurationPipe,
     MatInput,
-    SearchRequestComponent
+    SearchRequestComponent,
+    StoreSizePipe
   ],
   imports: [
     BrowserModule,

@@ -20,14 +20,17 @@
       <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
 
       <mat-table #table [dataSource]="documents" matSort>
-          <ng-container [matColumnDef]="column.Name" *ngFor="let column of availableColumns">
+          <ng-container [matColumnDef]="column.RequestName" *ngFor="let column of availableColumns">
             <mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.DisplayName }}</mat-header-cell>
             <ng-container [ngSwitch]="column.Type" >
-              <ng-container *ngSwitchCase="_ColumnType.Date">
+              <ng-container *ngSwitchCase="_FieldType.Date">
                 <mat-cell *matCellDef="let element">{{ element[column.Name] | date:'medium' }}</mat-cell>
               </ng-container>
-              <ng-container *ngSwitchCase="_ColumnType.Duration">
+              <ng-container *ngSwitchCase="_FieldType.Duration">
                 <mat-cell *matCellDef="let element">{{ element[column.Name] | duration:'s' }}</mat-cell>
+              </ng-container>
+              <ng-container *ngSwitchCase="_FieldType.StoreSize">
+                <mat-cell *matCellDef="let element">{{ element[column.Name] | storeSize:'b' }}</mat-cell>
               </ng-container>
               <ng-container *ngSwitchDefault>
                 <mat-cell *matCellDef="let element">{{ element[column.Name] }}</mat-cell>
