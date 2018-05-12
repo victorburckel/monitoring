@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import {MatPaginator, MatSort, MatTable} from '@angular/material';
+import {MatPaginator, MatSort, MatTable, MatDialog} from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { MonitoringService, FieldDefinition, FieldType } from '../monitoring.service';
 import { WebServiceDocument } from '../monitoring-document';
@@ -8,6 +8,7 @@ import { startWith, switchMap, map, tap, debounceTime, catchError } from 'rxjs/o
 import 'rxjs/add/observable/of';
 import { merge } from 'rxjs/observable/merge';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { DocumentViewDialogComponent } from './document-view-dialog.component';
 
 @Component({
   selector: 'mon-webservice-document-list',
@@ -28,18 +29,17 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private monitoringService: MonitoringService, private route: ActivatedRoute) { }
+  constructor(private monitoringService: MonitoringService, private route: ActivatedRoute, public dialog: MatDialog) { }
 
   ngOnInit() {
     this.availableColumns = this.monitoringService.fields();
-    this.displayedColumns = this.availableColumns
-      .filter(x => ['client_application', 'submitted', 'ended', 'duration', 'status', 'operation'].includes(x.Name))
-      .map(x => x.RequestName);
+    this.setDisplayedColumns(this.availableColumns
+      .filter(x => ['client_application', 'submitted', 'ended', 'duration', 'status', 'operation'].includes(x.Name)));
     this.displayedColumnsControl = new FormControl(this.availableColumns.filter(x => this.displayedColumns.includes(x.RequestName)));
 
     this.displayedColumnsControl.valueChanges.pipe(
       debounceTime(1000)
-    ).subscribe(() => this.displayedColumns = this.displayedColumnsControl.value.map( x => x.RequestName));
+    ).subscribe(() => this.setDisplayedColumns(this.displayedColumnsControl.value));
   }
 
   ngAfterViewInit() {
@@ -62,5 +62,15 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
         this.resultsLength = data.total;
         return data.hits;
       })).subscribe(data => this.documents = data);
+  }
+
+  setDisplayedColumns(values: FieldDefinition[]): void {
+    this.displayedColumns = values.map(x => x.RequestName).concat(['__view__']);
+  }
+
+  viewRawDocument(element: WebServiceDocument): void {
+    this.dialog.open(DocumentViewDialogComponent, {
+      data: { document: element }
+    });
   }
 }

@@ -20,32 +20,36 @@
       <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
 
       <mat-table #table [dataSource]="documents" matSort>
-          <ng-container [matColumnDef]="column.RequestName" *ngFor="let column of availableColumns">
-            <mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.DisplayName }}</mat-header-cell>
-            <ng-container [ngSwitch]="column.Type" >
-              <ng-container *ngSwitchCase="_FieldType.Date">
-                <mat-cell *matCellDef="let element">{{ element[column.Name] | date:'medium' }}</mat-cell>
-              </ng-container>
-              <ng-container *ngSwitchCase="_FieldType.Duration">
-                <mat-cell *matCellDef="let element">{{ element[column.Name] | duration:'s' }}</mat-cell>
-              </ng-container>
-              <ng-container *ngSwitchCase="_FieldType.StoreSize">
-                <mat-cell *matCellDef="let element">{{ element[column.Name] | storeSize:'b' }}</mat-cell>
-              </ng-container>
-              <ng-container *ngSwitchDefault>
-                <mat-cell *matCellDef="let element">{{ element[column.Name] }}</mat-cell>
-              </ng-container>
+        <ng-container [matColumnDef]="column.RequestName" *ngFor="let column of availableColumns">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.DisplayName }}</mat-header-cell>
+          <ng-container [ngSwitch]="column.Type">
+            <ng-container *ngSwitchCase="_FieldType.Date">
+              <mat-cell *matCellDef="let element">{{ element[column.Name] | date:'medium' }}</mat-cell>
             </ng-container>
+            <ng-container *ngSwitchCase="_FieldType.Duration">
+              <mat-cell *matCellDef="let element">{{ element[column.Name] | duration:'s' }}</mat-cell>
+            </ng-container>
+            <ng-container *ngSwitchCase="_FieldType.StoreSize">
+              <mat-cell *matCellDef="let element">{{ element[column.Name] | storeSize:'b' }}</mat-cell>
+            </ng-container>
+            <ng-container *ngSwitchDefault>
+              <mat-cell *matCellDef="let element">{{ element[column.Name] }}</mat-cell>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+        <ng-container matColumnDef="__view__">
+          <mat-header-cell *matHeaderCellDef>View</mat-header-cell>
+          <mat-cell *matCellDef="let element">
+            <button mat-icon-button type="button" (click)="viewRawDocument(element)">
+              <mat-icon aria-label="View source document">code</mat-icon>
+            </button>
+          </mat-cell>
         </ng-container>
 
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
       </mat-table>
-      <mat-paginator #paginator
-        [length]="resultsLength"
-        [pageSize]="5"
-        [pageSizeOptions]="[5, 10, 20]"
-        [showFirstLastButtons]="true">
+      <mat-paginator #paginator [length]="resultsLength" [pageSize]="5" [pageSizeOptions]="[5, 10, 20]" [showFirstLastButtons]="true">
       </mat-paginator>
     </div>
   </mat-card-content>

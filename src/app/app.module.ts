@@ -16,7 +16,8 @@ import {
   MatIconModule,
   MatSelectModule,
   MatNativeDateModule,
-  MatToolbarModule} from '@angular/material';
+  MatToolbarModule,
+  MatDialogModule} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -29,6 +30,7 @@ import { SearchRequestComponent } from './monitoring/search-request/search-reque
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { StoreSizePipe } from './shared/store-size.pipe';
+import { DocumentViewDialogComponent } from './monitoring/webservice-document-list/document-view-dialog.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +39,8 @@ import { StoreSizePipe } from './shared/store-size.pipe';
     DurationPipe,
     MatInput,
     SearchRequestComponent,
-    StoreSizePipe
+    StoreSizePipe,
+    DocumentViewDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -59,9 +62,11 @@ import { StoreSizePipe } from './shared/store-size.pipe';
     FormsModule,
     ReactiveFormsModule,
     MatToolbarModule,
-    HttpClientModule
+    HttpClientModule,
+    MatDialogModule
   ],
   providers: [MonitoringService],
+  entryComponents: [DocumentViewDialogComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
