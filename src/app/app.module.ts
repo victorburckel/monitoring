@@ -18,7 +18,8 @@ import {
   MatNativeDateModule,
   MatToolbarModule,
   MatDialogModule,
-  MatTabsModule} from '@angular/material';
+  MatTabsModule,
+  MatSnackBarModule} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -65,7 +66,8 @@ import { DocumentViewDialogComponent } from './monitoring/webservice-document-li
     MatToolbarModule,
     HttpClientModule,
     MatDialogModule,
-    MatTabsModule
+    MatTabsModule,
+    MatSnackBarModule
   ],
   providers: [MonitoringService],
   entryComponents: [DocumentViewDialogComponent],

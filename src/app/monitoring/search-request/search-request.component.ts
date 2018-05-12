@@ -38,14 +38,14 @@ export class SearchRequestComponent implements OnInit {
     this.searchForm = this.fb.group({
       queryBlocks: this.fb.array([])
     });
-    this.addQueryBlock({});
+    this.addQueryBlock();
 
     this.rawSearchForm = this.fb.group({
       query: ['', jsonValidation]
     });
   }
 
-  buildQueryBlock(values: {}): FormGroup {
+  buildQueryBlock(): FormGroup {
     return this.fb.group({
       field: [ '', [Validators.required] ],
       includeExclude: [ '', [Validators.required] ],
@@ -58,8 +58,8 @@ export class SearchRequestComponent implements OnInit {
     });
   }
 
-  addQueryBlock(values: any): void {
-    const queryBlock = this.buildQueryBlock(values);
+  addQueryBlock(): void {
+    const queryBlock = this.buildQueryBlock();
     this.queryBlocks.push(queryBlock);
 
     const terms = Observable.defer(() => queryBlock.get('field').valueChanges.pipe(
@@ -107,16 +107,18 @@ export class SearchRequestComponent implements OnInit {
   }
 
   parseQueryBlock(query: QueryBlock, includeExclude: string) {
+    const getFieldByRequestName = x => this.availableColumns.find(column => column.RequestName === x);
+
     if (query.term) {
       return {
-        field: Object.keys(query.term)[0],
+        field: getFieldByRequestName(Object.keys(query.term)[0]),
         includeExclude: includeExclude,
         requestType: 'term',
         term: query.term[Object.keys(query.term)[0]]
       };
     } else if (query.range) {
       return {
-        field: Object.keys(query.range)[0],
+        field: getFieldByRequestName(Object.keys(query.range)[0]),
         includeExclude: includeExclude,
         requestType: 'range',
         range: {
@@ -126,7 +128,7 @@ export class SearchRequestComponent implements OnInit {
       };
     } else if (query.exists) {
       return {
-        field: query.exists.field,
+        field: getFieldByRequestName(query.exists.field),
         includeExclude: includeExclude,
         requestType: 'exists',
       };
@@ -136,13 +138,30 @@ export class SearchRequestComponent implements OnInit {
   }
 
   fromJSON(json: any) {
-    for (const filter of json.filter) {
-      this.addQueryBlock(this.parseQueryBlock(filter, 'must'));
+    while (this.queryBlocks.controls.length) {
+      this.queryBlocks.removeAt(0);
     }
 
-    for (const must_not of json.must_not) {
-      this.addQueryBlock(this.parseQueryBlock(must_not, 'must_not'));
+    const values: any[] = [];
+    if (json.filter) {
+      for (const filter of json.filter) {
+        this.addQueryBlock();
+        values.push(this.parseQueryBlock(filter, 'must'));
+      }
     }
+
+    if (json.must_not) {
+      for (const must_not of json.must_not) {
+        this.addQueryBlock();
+        values.push(this.parseQueryBlock(must_not, 'must_not'));
+      }
+    }
+
+    this.queryBlocks.patchValue(values);
+  }
+
+  copyFromRawView() {
+    this.fromJSON(JSON.parse(this.rawSearchForm.get('query').value));
   }
 
   toJSON(): any {
@@ -182,11 +201,16 @@ export class SearchRequestComponent implements OnInit {
     return result;
   }
 
+  copyFromQueryBuilder() {
+    this.rawSearchForm.get('query').setValue(JSON.stringify(this.toJSON(), null, 4));
+  }
+
   search() {
     this.router.navigate(['/documentlist', { query: JSON.stringify(this.toJSON()) }]);
   }
 
   rawSearch() {
+    console.log('rawsearch');
     this.router.navigate(['/documentlist', { query: this.rawSearchForm.get('query').value }]);
   }
 }
@@ -202,10 +226,12 @@ function dateRangeValidation(dateFromSelectionControl: AbstractControl, dateToSe
 }
 
 function jsonValidation(c: AbstractControl): {[key: string]: boolean} | null  {
-  try {
-      JSON.parse(c.value);
-  } catch (e) {
-      return { 'json': e };
+  if (c.value) {
+    try {
+        JSON.parse(c.value);
+    } catch (e) {
+        return { 'json': e };
+    }
   }
 
   return null;

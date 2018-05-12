@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import {MatPaginator, MatSort, MatTable, MatDialog} from '@angular/material';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MatPaginator, MatSort, MatTable, MatDialog, MatSnackBar } from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { MonitoringService, FieldDefinition, FieldType } from '../monitoring.service';
 import { MonitoringDocument } from '../monitoring-document';
@@ -9,6 +10,7 @@ import 'rxjs/add/observable/of';
 import { merge } from 'rxjs/observable/merge';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { DocumentViewDialogComponent } from './document-view-dialog.component';
+
 
 @Component({
   selector: 'mon-webservice-document-list',
@@ -33,7 +35,8 @@ export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
     private monitoringService: MonitoringService,
     private route: ActivatedRoute,
     private router: Router,
-    public dialog: MatDialog) {
+    public dialog: MatDialog,
+    public snackBar: MatSnackBar) {
   }
 
   ngOnInit() {
@@ -59,7 +62,13 @@ export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
           this.paginator.pageIndex,
           this.paginator.pageSize);
       }),
-      catchError(() => {
+      catchError((e: HttpErrorResponse) => {
+        let message = e.message;
+        if (e.error && e.error.error && e.error.error.reason) {
+          message += ':\n' + e.error.error.reason;
+        }
+
+        this.snackBar.open(message, null, { duration: 3000 });
         return Observable.of({ total: 0, hits: [] });
       }),
       map(data => {
