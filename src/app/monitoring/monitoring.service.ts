@@ -32,7 +32,11 @@ export class MonitoringService {
     return this.http.post<any>(`${this.url}/monitoring/_search`, query)
       .map(x => ({
         total: x.hits.total,
-        hits: x.hits.hits.map(h => h._source)
+        hits: x.hits.hits.map(h => {
+          const doc = h._source;
+          doc._id = h._id;
+          return doc;
+        })
       }));
   }
 

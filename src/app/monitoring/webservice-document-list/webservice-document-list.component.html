@@ -45,6 +45,14 @@
             </button>
           </mat-cell>
         </ng-container>
+        <ng-container matColumnDef="__subdocuments__">
+            <mat-header-cell *matHeaderCellDef>Browse</mat-header-cell>
+            <mat-cell *matCellDef="let element">
+              <button mat-icon-button type="button" (click)="viewSubDocuments(element)">
+                <mat-icon aria-label="View sub documents">keyboard_arrow_right</mat-icon>
+              </button>
+            </mat-cell>
+          </ng-container>
 
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>

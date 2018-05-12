@@ -1,6 +1,6 @@
 export interface MonitoringDocument {
-    id: string;
-    parentDocumentId: string;
+    _id: string;
+    _parentDocumentIds: string[];
     submitted: Date;
     ended: Date;
     status: string;

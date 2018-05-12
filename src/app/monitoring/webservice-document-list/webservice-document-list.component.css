@@ -1,29 +1,29 @@
 .example-container {
-    display: flex;
-    flex-direction: column;
-    min-width: 300px;
-  }
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+}
 
-  .example-header {
-    min-height: 64px;
-    padding: 8px 24px 0;
-  }
+.example-header {
+  min-height: 64px;
+  padding: 8px 24px 0;
+}
 
-  .mat-form-field {
-    font-size: 14px;
-    width: 100%;
-  }
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
 
-  .mat-table {
-    overflow: auto;
-    max-height: 500px;
-  }
+.mat-table {
+  overflow: auto;
+  max-height: 500px;
+}
 
-  .mat-header-cell.mat-sort-header-sorted {
-    color: black;
-  }
+.mat-header-cell.mat-sort-header-sorted {
+  color: black;
+}
 
-  .example-additional-selection {
-    opacity: 0.75;
-    font-size: 0.75em;
-  }
+.example-additional-selection {
+  opacity: 0.75;
+  font-size: 0.75em;
+}

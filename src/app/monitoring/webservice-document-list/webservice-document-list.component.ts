@@ -2,12 +2,12 @@ import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import {MatPaginator, MatSort, MatTable, MatDialog} from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { MonitoringService, FieldDefinition, FieldType } from '../monitoring.service';
-import { WebServiceDocument } from '../monitoring-document';
+import { MonitoringDocument } from '../monitoring-document';
 import { Observable } from 'rxjs/Observable';
 import { startWith, switchMap, map, tap, debounceTime, catchError } from 'rxjs/operators';
 import 'rxjs/add/observable/of';
 import { merge } from 'rxjs/observable/merge';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { DocumentViewDialogComponent } from './document-view-dialog.component';
 
 @Component({
@@ -15,10 +15,10 @@ import { DocumentViewDialogComponent } from './document-view-dialog.component';
   templateUrl: './webservice-document-list.component.html',
   styleUrls: ['./webservice-document-list.component.css']
 })
-export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
+export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
   availableColumns: FieldDefinition[];
   displayedColumns: string [];
-  documents: WebServiceDocument[] = [];
+  documents: MonitoringDocument[] = [];
   isLoadingResults = true;
   resultsLength = 0;
 
@@ -29,7 +29,12 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private monitoringService: MonitoringService, private route: ActivatedRoute, public dialog: MatDialog) { }
+  constructor(
+    private monitoringService: MonitoringService,
+    private route: ActivatedRoute,
+    private router: Router,
+    public dialog: MatDialog) {
+  }
 
   ngOnInit() {
     this.availableColumns = this.monitoringService.fields();
@@ -65,12 +70,21 @@ export class WebserviceDocumentListComponent implements OnInit, AfterViewInit {
   }
 
   setDisplayedColumns(values: FieldDefinition[]): void {
-    this.displayedColumns = values.map(x => x.RequestName).concat(['__view__']);
+    this.displayedColumns = values.map(x => x.RequestName).concat(['__view__', '__subdocuments__']);
   }
 
-  viewRawDocument(element: WebServiceDocument): void {
+  viewRawDocument(element: MonitoringDocument): void {
     this.dialog.open(DocumentViewDialogComponent, {
       data: { document: element }
     });
+  }
+
+  viewSubDocuments(element: MonitoringDocument): void {
+    const query = {
+      filter: [
+        { term: { _parentDocumentIds: element._id } }
+      ]
+    };
+    this.router.navigate(['documentlist', { query: JSON.stringify(query) }]);
   }
 }

@@ -23,7 +23,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
-import { WebserviceDocumentListComponent } from './monitoring/webservice-document-list/webservice-document-list.component';
+import { MonitoringDocumentListComponent } from './monitoring/webservice-document-list/webservice-document-list.component';
 import { MonitoringService } from './monitoring/monitoring.service';
 import { DurationPipe } from './shared/duration.pipe';
 import { SearchRequestComponent } from './monitoring/search-request/search-request.component';
@@ -35,7 +35,7 @@ import { DocumentViewDialogComponent } from './monitoring/webservice-document-li
 @NgModule({
   declarations: [
     AppComponent,
-    WebserviceDocumentListComponent,
+    MonitoringDocumentListComponent,
     DurationPipe,
     MatInput,
     SearchRequestComponent,

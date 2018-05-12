@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { WebserviceDocumentListComponent } from './webservice-document-list.component';
+import { MonitoringDocumentListComponent } from './webservice-document-list.component';
 
 describe('WebserviceDocumentListComponent', () => {
-  let component: WebserviceDocumentListComponent;
-  let fixture: ComponentFixture<WebserviceDocumentListComponent>;
+  let component: MonitoringDocumentListComponent;
+  let fixture: ComponentFixture<MonitoringDocumentListComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ WebserviceDocumentListComponent ]
+      declarations: [ MonitoringDocumentListComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(WebserviceDocumentListComponent);
+    fixture = TestBed.createComponent(MonitoringDocumentListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

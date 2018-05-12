@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { WebserviceDocumentListComponent } from './monitoring/webservice-document-list/webservice-document-list.component';
+import { MonitoringDocumentListComponent } from './monitoring/webservice-document-list/webservice-document-list.component';
 
 const routes: Routes = [
-  { path: 'documentlist', component: WebserviceDocumentListComponent },
+  { path: 'documentlist', component: MonitoringDocumentListComponent },
   { path: '', pathMatch: 'full', redirectTo: 'documentlist'}
 ];
 
