@@ -54,6 +54,7 @@ export class MonitoringService {
       { Name: 'output_size', RequestName: 'output_size', DisplayName: 'Output Size', Type: FieldType.StoreSize },
       { Name: 'error', RequestName: 'error.keyword', DisplayName: 'Error', Type: FieldType.String },
       { Name: 'after_send_error', RequestName: 'after_send_error.keyword', DisplayName: 'After Send Error', Type: FieldType.String },
+      { Name: 'type', RequestName: 'type.keyword', DisplayName: 'Type', Type: FieldType.String }
     ];
   }
 

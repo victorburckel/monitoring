@@ -17,7 +17,8 @@ import {
   MatSelectModule,
   MatNativeDateModule,
   MatToolbarModule,
-  MatDialogModule} from '@angular/material';
+  MatDialogModule,
+  MatTabsModule} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -63,7 +64,8 @@ import { DocumentViewDialogComponent } from './monitoring/webservice-document-li
     ReactiveFormsModule,
     MatToolbarModule,
     HttpClientModule,
-    MatDialogModule
+    MatDialogModule,
+    MatTabsModule
   ],
   providers: [MonitoringService],
   entryComponents: [DocumentViewDialogComponent],

@@ -1,77 +1,117 @@
-<form class="form-horizontal" novalidate (ngSubmit)="search()" [formGroup]="searchForm">
-  <mat-card>
-    <mat-card-title>
-      <mat-toolbar>Search</mat-toolbar>
-    </mat-card-title>
-    <mat-card-content>
-      <div formArrayName="queryBlocks" *ngFor="let queryBlock of queryBlocks.controls; let i=index">
-        <div class="form-group" [formGroupName]="i">
-          <mat-form-field>
-            <mat-select placeholder="field" formControlName="column">
-              <mat-option *ngFor="let column of availableColumns" [value]="column">{{ column.DisplayName }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        
-          <mat-form-field *ngIf="!!control('column', i).value">
-            <mat-select placeholder="condition" formControlName="includeExclude">
-              <mat-option value="must">Must</mat-option>
-              <mat-option value="must_not">Must Not</mat-option>
-            </mat-select>
-          </mat-form-field>
-        
-          <mat-form-field *ngIf="!!control('column', i).value && !!control('includeExclude', i).value">
-            <mat-select placeholder="type" formControlName="requestType">
-              <mat-option value="term" *ngIf="control('column', i).value.Type === _FieldType.String">Term</mat-option>
-              <mat-option value="range">Range</mat-option>
-              <mat-option value="exists">Exists</mat-option>
-            </mat-select>
-          </mat-form-field>
-        
-          <ng-container *ngIf="!!control('column', i).value && !!control('includeExclude', i).value">
-            <ng-container *ngIf="control('requestType', i).value === 'term'">
-              <mat-form-field>
-                <input matInput type="text" [matAutocomplete]="auto" formControlName="term">
-                <mat-autocomplete #auto="matAutocomplete">
-                  <mat-option *ngFor="let term of filteredTerms[i] | async" [value]="term">
-                    {{ term }}
-                  </mat-option>
-                </mat-autocomplete>
-              </mat-form-field>
-            </ng-container>
-        
-            <ng-container *ngIf="control('requestType', i).value === 'range'">
-              <ng-container *ngIf="control('column', i).value.Type === _FieldType.Date">
-                <span formGroupName="dateRange" [ngClass]="{'ng-invalid': true}">
+<mat-card>
+  <mat-card-title>
+    <mat-toolbar>Search</mat-toolbar>
+  </mat-card-title>
+  <mat-card-content>
+    <mat-tab-group>
+      <mat-tab label="Query Builder">
+        <ng-template mat-tab-label>
+          <mat-icon>query_builder</mat-icon>
+          Query Builder
+        </ng-template>
+        <form class="form-horizontal" novalidate (ngSubmit)="search()" [formGroup]="searchForm">
+          <mat-card>
+            <mat-card-content>
+              <div formArrayName="queryBlocks" *ngFor="let queryBlock of queryBlocks.controls; let i=index">
+                <div class="form-group" [formGroupName]="i">
                   <mat-form-field>
-                    <input matInput [matDatepicker]="dateFrom" placeholder="From" formControlName="from">
-                    <mat-datepicker-toggle matSuffix [for]="dateFrom"></mat-datepicker-toggle>
-                    <mat-datepicker #dateFrom></mat-datepicker>
+                    <mat-select placeholder="field" formControlName="field">
+                      <mat-option *ngFor="let column of availableColumns" [value]="column">{{ column.DisplayName }}</mat-option>
+                    </mat-select>
                   </mat-form-field>
-        
-                  <mat-form-field>
-                    <input matInput [matDatepicker]="dateTo" placeholder="To" formControlName="to">
-                    <mat-datepicker-toggle matSuffix [for]="dateTo"></mat-datepicker-toggle>
-                    <mat-datepicker #dateTo></mat-datepicker>
+
+                  <mat-form-field *ngIf="!!control('field', i).value">
+                    <mat-select placeholder="condition" formControlName="includeExclude">
+                      <mat-option value="must">Must</mat-option>
+                      <mat-option value="must_not">Must Not</mat-option>
+                    </mat-select>
                   </mat-form-field>
-                </span>
-              </ng-container>
-            </ng-container>
-          </ng-container>
-          <button mat-button (click)="removeQueryBlock(i)" type="button">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-      </div>
-      <button mat-button (click)="addQueryBlock()" type="button">
-        <mat-icon>add</mat-icon>
-        Add
-      </button>
-    </mat-card-content>
-    <mat-card-actions>
-      <button [disabled]="!searchForm.valid" mat-button type="submit">
-        <mat-icon>search</mat-icon>
-        Search
-      </button>
-    </mat-card-actions>
-  </mat-card>
-</form>
+
+                  <mat-form-field *ngIf="!!control('field', i).value && !!control('includeExclude', i).value">
+                    <mat-select placeholder="type" formControlName="requestType">
+                      <mat-option value="term" *ngIf="control('field', i).value.Type === _FieldType.String">Term</mat-option>
+                      <mat-option value="range">Range</mat-option>
+                      <mat-option value="exists">Exists</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <ng-container *ngIf="!!control('field', i).value && !!control('includeExclude', i).value">
+                    <ng-container *ngIf="control('requestType', i).value === 'term'">
+                      <mat-form-field>
+                        <input matInput type="text" [matAutocomplete]="auto" formControlName="term">
+                        <mat-autocomplete #auto="matAutocomplete">
+                          <mat-option *ngFor="let term of filteredTerms[i] | async" [value]="term">
+                            {{ term }}
+                          </mat-option>
+                        </mat-autocomplete>
+                      </mat-form-field>
+                    </ng-container>
+
+                    <ng-container *ngIf="control('requestType', i).value === 'range'">
+                      <ng-container *ngIf="control('field', i).value.Type === _FieldType.Date">
+                        <span formGroupName="dateRange">
+                          <mat-form-field>
+                            <input matInput [matDatepicker]="dateFrom" placeholder="From" formControlName="from">
+                            <mat-datepicker-toggle matSuffix [for]="dateFrom"></mat-datepicker-toggle>
+                            <mat-datepicker #dateFrom></mat-datepicker>
+                          </mat-form-field>
+
+                          <mat-form-field>
+                            <input matInput [matDatepicker]="dateTo" placeholder="To" formControlName="to">
+                            <mat-datepicker-toggle matSuffix [for]="dateTo"></mat-datepicker-toggle>
+                            <mat-datepicker #dateTo></mat-datepicker>
+                          </mat-form-field>
+                        </span>
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+                  <button mat-button (click)="removeQueryBlock(i)" type="button">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+              <button mat-button (click)="addQueryBlock()" type="button">
+                <mat-icon>add</mat-icon>
+                Add
+              </button>
+            </mat-card-content>
+            <mat-card-actions>
+              <button [disabled]="!searchForm.valid" mat-button type="submit">
+                <mat-icon>search</mat-icon>
+                Search
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </form>
+      </mat-tab>
+      <mat-tab label="Raw view">
+        <ng-template mat-tab-label>
+          <mat-icon>edit</mat-icon>
+          Raw View
+        </ng-template>
+        <form novalidate (ngSubmit)="rawSearch()" [formGroup]="rawSearchForm">
+          <mat-card>
+            <mat-card-content>
+              <div>
+                <mat-form-field class="example-full-width" cdkAutosizeTextare>
+                  <textarea matInput cdkAutosizeTextare formControlName="query">
+                  </textarea>
+                  <mat-hint>
+                    Enter full query
+                  </mat-hint>
+                  <mat-error >Must be a valid json</mat-error>
+                </mat-form-field>
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button [disabled]="!rawSearchForm.valid" mat-button type="submit">
+                <mat-icon>search</mat-icon>
+                Search
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </form>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

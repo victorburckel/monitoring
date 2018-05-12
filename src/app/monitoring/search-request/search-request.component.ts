@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormBuilder, FormArray, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { startWith, map, switchMap, tap } from 'rxjs/operators';
@@ -7,14 +7,20 @@ import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/operator/filter';
 import { FieldDefinition, MonitoringService, FieldType } from '../monitoring.service';
 import { Router } from '@angular/router';
+import { MatTabGroup } from '@angular/material';
 
 @Component({
   selector: 'mon-search-request',
   templateUrl: './search-request.component.html',
-  styles: []
+  styles: [`
+  .example-full-width {
+    width: 100%;
+  }
+  `]
 })
 export class SearchRequestComponent implements OnInit {
   searchForm: FormGroup;
+  rawSearchForm: FormGroup;
   availableColumns: FieldDefinition[];
   filteredTerms: Observable<string[]>[] = [];
 
@@ -32,12 +38,16 @@ export class SearchRequestComponent implements OnInit {
     this.searchForm = this.fb.group({
       queryBlocks: this.fb.array([])
     });
-    this.addQueryBlock();
+    this.addQueryBlock({});
+
+    this.rawSearchForm = this.fb.group({
+      query: ['', jsonValidation]
+    });
   }
 
-  buildQueryBlock(): FormGroup {
+  buildQueryBlock(values: {}): FormGroup {
     return this.fb.group({
-      column: [ '', [Validators.required] ],
+      field: [ '', [Validators.required] ],
       includeExclude: [ '', [Validators.required] ],
       requestType: [ '', [ Validators.required ] ],
       term: '',
@@ -48,12 +58,12 @@ export class SearchRequestComponent implements OnInit {
     });
   }
 
-  addQueryBlock(): void {
-    const queryBlock = this.buildQueryBlock();
+  addQueryBlock(values: any): void {
+    const queryBlock = this.buildQueryBlock(values);
     this.queryBlocks.push(queryBlock);
 
-    const terms = Observable.defer(() => queryBlock.get('column').valueChanges.pipe(
-      startWith(queryBlock.get('column').value),
+    const terms = Observable.defer(() => queryBlock.get('field').valueChanges.pipe(
+      startWith(queryBlock.get('field').value),
       switchMap((field: FieldDefinition) => this.monitoringService.terms(field.RequestName)),
     ));
 
@@ -96,6 +106,45 @@ export class SearchRequestComponent implements OnInit {
     queryBlock.get('dateRange').updateValueAndValidity();
   }
 
+  parseQueryBlock(query: QueryBlock, includeExclude: string) {
+    if (query.term) {
+      return {
+        field: Object.keys(query.term)[0],
+        includeExclude: includeExclude,
+        requestType: 'term',
+        term: query.term[Object.keys(query.term)[0]]
+      };
+    } else if (query.range) {
+      return {
+        field: Object.keys(query.range)[0],
+        includeExclude: includeExclude,
+        requestType: 'range',
+        range: {
+          lt: query.range[Object.keys(query.range)[0]].lt,
+          gt: query.range[Object.keys(query.range)[0]].gt
+        }
+      };
+    } else if (query.exists) {
+      return {
+        field: query.exists.field,
+        includeExclude: includeExclude,
+        requestType: 'exists',
+      };
+    }
+
+    return {};
+  }
+
+  fromJSON(json: any) {
+    for (const filter of json.filter) {
+      this.addQueryBlock(this.parseQueryBlock(filter, 'must'));
+    }
+
+    for (const must_not of json.must_not) {
+      this.addQueryBlock(this.parseQueryBlock(must_not, 'must_not'));
+    }
+  }
+
   toJSON(): any {
     const result = {
       filter: [],
@@ -103,24 +152,26 @@ export class SearchRequestComponent implements OnInit {
     };
 
     for (const queryBlock of this.queryBlocks.controls) {
-      const q = {};
+      const query: QueryBlock = {};
 
       const requestType = queryBlock.get('requestType').value;
-      const field = queryBlock.get('column').value.RequestName;
+      const field = queryBlock.get('field').value.RequestName;
 
       if (requestType === 'term') {
-        q[field] = queryBlock.get('term').value;
+        query.term = {};
+        query.term[field] = queryBlock.get('term').value;
       } else if (requestType === 'range') {
-        q[field] = {
+        query.range = {};
+        query.range[field] = {
           gt: queryBlock.get('dateRange.from').value,
-          lt: queryBlock.get('dateRange.to').value,
+          lt: queryBlock.get('dateRange.to').value
         };
       } else if (requestType === 'exists') {
-        q['field'] = field;
+        query.exists = {
+          field: field
+        };
       }
 
-      const query = {};
-      query[queryBlock.get('requestType').value] = q;
       if (queryBlock.get('includeExclude').value === 'must') {
         result.filter.push(query);
       } else {
@@ -134,6 +185,10 @@ export class SearchRequestComponent implements OnInit {
   search() {
     this.router.navigate(['/documentlist', { query: JSON.stringify(this.toJSON()) }]);
   }
+
+  rawSearch() {
+    this.router.navigate(['/documentlist', { query: this.rawSearchForm.get('query').value }]);
+  }
 }
 
 function dateRangeValidation(dateFromSelectionControl: AbstractControl, dateToSelectionControl: AbstractControl): ValidatorFn {
@@ -144,4 +199,35 @@ function dateRangeValidation(dateFromSelectionControl: AbstractControl, dateToSe
 
     return null;
   };
+}
+
+function jsonValidation(c: AbstractControl): {[key: string]: boolean} | null  {
+  try {
+      JSON.parse(c.value);
+  } catch (e) {
+      return { 'json': e };
+  }
+
+  return null;
+}
+
+export interface TermQuery {
+  [key: string]: string;
+}
+
+export interface RangeQuery {
+  [key: string]: {
+    gt: any;
+    lt: any;
+  };
+}
+
+export interface ExistsQuery {
+  field: string;
+}
+
+export interface QueryBlock {
+  term?: TermQuery;
+  range?: RangeQuery;
+  exists?: ExistsQuery;
 }
