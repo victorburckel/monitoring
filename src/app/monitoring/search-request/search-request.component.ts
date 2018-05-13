@@ -11,7 +11,7 @@ import {
   NgForm
 } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
-import { startWith, map, switchMap, tap } from 'rxjs/operators';
+import { startWith, map, switchMap, tap, filter } from 'rxjs/operators';
 import 'rxjs/add/observable/defer';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/operator/filter';
@@ -30,12 +30,15 @@ import { MatTabGroup, ErrorStateMatcher } from '@angular/material';
 })
 export class SearchRequestComponent implements OnInit {
   searchForm: FormGroup;
-  rawSearchForm: FormGroup;
   availableColumns: FieldDefinition[];
   filteredTerms: Observable<string[]>[] = [];
   dateRangeErrorMatcher = new DateRangeErrorMatch();
 
+  rawText: string;
+
   _FieldType = FieldType;
+
+  @ViewChild('rawEditor') rawEditor;
 
   get queryBlocks(): FormArray {
     return <FormArray>this.searchForm.get('queryBlocks');
@@ -50,10 +53,6 @@ export class SearchRequestComponent implements OnInit {
       queryBlocks: this.fb.array([])
     });
     this.addQueryBlock();
-
-    this.rawSearchForm = this.fb.group({
-      query: [ '', jsonValidation ]
-    });
   }
 
   buildQueryBlock(): FormGroup {
@@ -75,6 +74,7 @@ export class SearchRequestComponent implements OnInit {
 
     const terms = Observable.defer(() => queryBlock.get('field').valueChanges.pipe(
       startWith(queryBlock.get('field').value),
+      filter((field: FieldDefinition) => field.Type === FieldType.String),
       switchMap((field: FieldDefinition) => this.monitoringService.terms(field.RequestName)),
     ));
 
@@ -148,31 +148,8 @@ export class SearchRequestComponent implements OnInit {
     return {};
   }
 
-  fromJSON(json: any) {
-    while (this.queryBlocks.controls.length) {
-      this.queryBlocks.removeAt(0);
-    }
-
-    const values: any[] = [];
-    if (json.filter) {
-      for (const filter of json.filter) {
-        this.addQueryBlock();
-        values.push(this.parseQueryBlock(filter, 'must'));
-      }
-    }
-
-    if (json.must_not) {
-      for (const must_not of json.must_not) {
-        this.addQueryBlock();
-        values.push(this.parseQueryBlock(must_not, 'must_not'));
-      }
-    }
-
-    this.queryBlocks.patchValue(values);
-  }
-
-  importFromRawView() {
-    this.fromJSON(JSON.parse(this.rawSearchForm.get('query').value));
+  isRawTextValid() {
+    return this.rawEditor.getEditor().session.getAnnotations().length === 0;
   }
 
   toJSON(): any {
@@ -216,7 +193,7 @@ export class SearchRequestComponent implements OnInit {
   }
 
   importFromQueryBuilder() {
-    this.rawSearchForm.get('query').setValue(JSON.stringify(this.toJSON(), null, 4));
+    this.rawText = JSON.stringify(this.toJSON(), null, 4);
   }
 
   search() {
@@ -224,7 +201,7 @@ export class SearchRequestComponent implements OnInit {
   }
 
   rawSearch() {
-    this.router.navigate(['/documentlist', { query: this.rawSearchForm.get('query').value }]);
+    this.router.navigate(['/documentlist', { query: this.rawText }]);
   }
 }
 
@@ -242,18 +219,6 @@ class DateRangeErrorMatch implements ErrorStateMatcher {
   isErrorState(control: FormControl, form: FormGroupDirective | NgForm): boolean {
     return !!(control && (control.dirty || control.touched) && control.parent.errors);
   }
-}
-
-function jsonValidation(c: AbstractControl): {[key: string]: boolean} | null  {
-  if (c.value) {
-    try {
-        JSON.parse(c.value);
-    } catch (e) {
-        return { 'json': e };
-    }
-  }
-
-  return null;
 }
 
 export interface TermQuery {

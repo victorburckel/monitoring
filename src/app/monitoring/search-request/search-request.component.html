@@ -82,10 +82,6 @@
               </button>
             </mat-card-content>
             <mat-card-actions>
-              <button [disabled]="!rawSearchForm.valid || !rawSearchForm.get('query').value" mat-button type="button" (click)="importFromRawView()">
-                <mat-icon>arrow_downward</mat-icon>
-                Import from raw view
-              </button>
               <button [disabled]="!searchForm.valid" mat-button type="submit">
                 <mat-icon>search</mat-icon>
                 Search
@@ -99,32 +95,21 @@
           <mat-icon>edit</mat-icon>
           Raw View
         </ng-template>
-        <form novalidate (ngSubmit)="rawSearch()" [formGroup]="rawSearchForm">
-          <mat-card>
-            <mat-card-content>
-              <div>
-                <mat-form-field class="example-full-width" cdkAutosizeTextare>
-                  <textarea matInput cdkAutosizeTextare formControlName="query">
-                  </textarea>
-                  <mat-hint>
-                    Enter full query
-                  </mat-hint>
-                  <mat-error >Must be a valid json</mat-error>
-                </mat-form-field>
-              </div>
-            </mat-card-content>
-            <mat-card-actions>
-              <button [disabled]="!searchForm.valid" mat-button type="button" (click)="importFromQueryBuilder()">
-                <mat-icon>arrow_downward</mat-icon>
-                Import from query builder
-              </button>
-              <button [disabled]="!rawSearchForm.valid" mat-button type="submit">
-                <mat-icon>search</mat-icon>
-                Search
-              </button>
-            </mat-card-actions>
-          </mat-card>
-        </form>
+        <mat-card>
+          <mat-card-content>
+            <ace-editor #rawEditor  [(text)]="rawText" [mode]="'javascript'" theme="textmate" style="min-height: 150px; width:100%; overflow: auto;"></ace-editor>
+          </mat-card-content>
+          <mat-card-actions>
+            <button [disabled]="!searchForm.valid" mat-button type="button" (click)="importFromQueryBuilder()">
+              <mat-icon>arrow_downward</mat-icon>
+              Import from query builder
+            </button>
+            <button [disabled]="!isRawTextValid()" mat-button type="submit">
+              <mat-icon>search</mat-icon>
+              Search
+            </button>
+          </mat-card-actions>
+        </mat-card>
       </mat-tab>
     </mat-tab-group>
   </mat-card-content>

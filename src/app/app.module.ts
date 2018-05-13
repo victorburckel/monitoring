@@ -21,6 +21,7 @@ import {
   MatTabsModule,
   MatSnackBarModule} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AceEditorModule } from 'ng2-ace-editor';
 
 import { AppRoutingModule } from './app-routing.module';
 
@@ -67,7 +68,8 @@ import { DocumentViewDialogComponent } from './monitoring/webservice-document-li
     HttpClientModule,
     MatDialogModule,
     MatTabsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    AceEditorModule
   ],
   providers: [MonitoringService],
   entryComponents: [DocumentViewDialogComponent],

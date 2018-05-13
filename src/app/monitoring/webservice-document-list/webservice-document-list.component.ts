@@ -63,11 +63,13 @@ export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
           this.paginator.pageSize).pipe(
             catchError((e: HttpErrorResponse) => {
               let message = e.message;
-              if (e.error && e.error.error && e.error.error.reason) {
-                message += ':\n' + e.error.error.reason;
+              if (e.error && e.error.error &&
+                e.error.error.root_cause && e.error.error.root_cause.length &&
+                e.error.error.root_cause[0].reason) {
+                message += ':\n' + e.error.error.root_cause[0].reason;
               }
 
-              this.snackBar.open(message, null, { duration: 3000 });
+              this.snackBar.open(message, null, { duration: 5000 });
               return Observable.of({ hits: [], total: 0 });
             })
           );
