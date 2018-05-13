@@ -18,6 +18,7 @@
                     <mat-select placeholder="field" formControlName="field">
                       <mat-option *ngFor="let column of availableColumns" [value]="column">{{ column.DisplayName }}</mat-option>
                     </mat-select>
+                    <mat-error >Field is required</mat-error>
                   </mat-form-field>
 
                   <mat-form-field *ngIf="!!control('field', i).value">
@@ -25,6 +26,7 @@
                       <mat-option value="must">Must</mat-option>
                       <mat-option value="must_not">Must Not</mat-option>
                     </mat-select>
+                    <mat-error >Condition is required</mat-error>
                   </mat-form-field>
 
                   <mat-form-field *ngIf="!!control('field', i).value && !!control('includeExclude', i).value">
@@ -33,6 +35,7 @@
                       <mat-option value="range">Range</mat-option>
                       <mat-option value="exists">Exists</mat-option>
                     </mat-select>
+                    <mat-error >Type is required</mat-error>
                   </mat-form-field>
 
                   <ng-container *ngIf="!!control('field', i).value && !!control('includeExclude', i).value">
@@ -44,6 +47,7 @@
                             {{ term }}
                           </mat-option>
                         </mat-autocomplete>
+                        <mat-error >Term is required</mat-error>
                       </mat-form-field>
                     </ng-container>
 
@@ -51,15 +55,17 @@
                       <ng-container *ngIf="control('field', i).value.Type === _FieldType.Date">
                         <span formGroupName="dateRange">
                           <mat-form-field>
-                            <input matInput [matDatepicker]="dateFrom" placeholder="From" formControlName="from">
+                            <input matInput [matDatepicker]="dateFrom" placeholder="From" formControlName="from" [errorStateMatcher]="dateRangeErrorMatcher">
                             <mat-datepicker-toggle matSuffix [for]="dateFrom"></mat-datepicker-toggle>
                             <mat-datepicker #dateFrom></mat-datepicker>
+                            <mat-error >From must be before {{ control('dateRange.to', i).value ? (control('dateRange.to', i).value | date:'shortDate') : 'to' }}</mat-error>
                           </mat-form-field>
 
                           <mat-form-field>
-                            <input matInput [matDatepicker]="dateTo" placeholder="To" formControlName="to">
+                            <input matInput [matDatepicker]="dateTo" placeholder="To" formControlName="to" [errorStateMatcher]="dateRangeErrorMatcher">
                             <mat-datepicker-toggle matSuffix [for]="dateTo"></mat-datepicker-toggle>
                             <mat-datepicker #dateTo></mat-datepicker>
+                            <mat-error >To must be after {{ control('dateRange.from', i).value ? (control('dateRange.from', i).value | date:'shortDate') : 'from' }}</mat-error>
                           </mat-form-field>
                         </span>
                       </ng-container>
@@ -76,9 +82,9 @@
               </button>
             </mat-card-content>
             <mat-card-actions>
-              <button [disabled]="!rawSearchForm.valid" mat-button type="button" (click)="copyFromRawView()">
-                <mat-icon>forward</mat-icon>
-                Copy from raw view
+              <button [disabled]="!rawSearchForm.valid || !rawSearchForm.get('query').value" mat-button type="button" (click)="importFromRawView()">
+                <mat-icon>arrow_downward</mat-icon>
+                Import from raw view
               </button>
               <button [disabled]="!searchForm.valid" mat-button type="submit">
                 <mat-icon>search</mat-icon>
@@ -108,9 +114,9 @@
               </div>
             </mat-card-content>
             <mat-card-actions>
-              <button [disabled]="!searchForm.valid" mat-button type="button" (click)="copyFromQueryBuilder()">
-                <mat-icon>forward</mat-icon>
-                Copy from query builder
+              <button [disabled]="!searchForm.valid" mat-button type="button" (click)="importFromQueryBuilder()">
+                <mat-icon>arrow_downward</mat-icon>
+                Import from query builder
               </button>
               <button [disabled]="!rawSearchForm.valid" mat-button type="submit">
                 <mat-icon>search</mat-icon>

@@ -30,7 +30,7 @@
               <mat-cell *matCellDef="let element">{{ element[column.Name] | duration:'s' }}</mat-cell>
             </ng-container>
             <ng-container *ngSwitchCase="_FieldType.StoreSize">
-              <mat-cell *matCellDef="let element">{{ element[column.Name] | storeSize:'b' }}</mat-cell>
+              <mat-cell *matCellDef="let element">{{ element[column.Name] | storeSize:'kb' }}</mat-cell>
             </ng-container>
             <ng-container *ngSwitchDefault>
               <mat-cell *matCellDef="let element">{{ element[column.Name] }}</mat-cell>

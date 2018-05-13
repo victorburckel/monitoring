@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MatPaginator, MatSort, MatTable, MatDialog, MatSnackBar } from '@angular/material';
 import { FormControl } from '@angular/forms';
 import { MonitoringService, FieldDefinition, FieldType } from '../monitoring.service';
-import { MonitoringDocument } from '../monitoring-document';
+import { MonitoringDocument, WebServiceDocument } from '../monitoring-document';
 import { Observable } from 'rxjs/Observable';
 import { startWith, switchMap, map, tap, debounceTime, catchError } from 'rxjs/operators';
 import 'rxjs/add/observable/of';
@@ -60,22 +60,23 @@ export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
           this.sort.active,
           this.sort.direction,
           this.paginator.pageIndex,
-          this.paginator.pageSize);
-      }),
-      catchError((e: HttpErrorResponse) => {
-        let message = e.message;
-        if (e.error && e.error.error && e.error.error.reason) {
-          message += ':\n' + e.error.error.reason;
-        }
+          this.paginator.pageSize).pipe(
+            catchError((e: HttpErrorResponse) => {
+              let message = e.message;
+              if (e.error && e.error.error && e.error.error.reason) {
+                message += ':\n' + e.error.error.reason;
+              }
 
-        this.snackBar.open(message, null, { duration: 3000 });
-        return Observable.of({ total: 0, hits: [] });
+              this.snackBar.open(message, null, { duration: 3000 });
+              return Observable.of({ hits: [], total: 0 });
+            })
+          );
       }),
       map(data => {
         this.isLoadingResults = false;
         this.resultsLength = data.total;
         return data.hits;
-      })).subscribe(data => this.documents = data);
+      })).subscribe(data => this.documents = data, e => console.log(`error: ${e}`), () => console.log('completed'));
   }
 
   setDisplayedColumns(values: FieldDefinition[]): void {

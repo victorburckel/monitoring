@@ -1,5 +1,15 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, FormBuilder, FormArray, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormBuilder,
+  FormArray,
+  Validators,
+  AbstractControl,
+  ValidatorFn,
+  FormGroupDirective,
+  NgForm
+} from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { startWith, map, switchMap, tap } from 'rxjs/operators';
 import 'rxjs/add/observable/defer';
@@ -7,7 +17,7 @@ import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/operator/filter';
 import { FieldDefinition, MonitoringService, FieldType } from '../monitoring.service';
 import { Router } from '@angular/router';
-import { MatTabGroup } from '@angular/material';
+import { MatTabGroup, ErrorStateMatcher } from '@angular/material';
 
 @Component({
   selector: 'mon-search-request',
@@ -23,6 +33,7 @@ export class SearchRequestComponent implements OnInit {
   rawSearchForm: FormGroup;
   availableColumns: FieldDefinition[];
   filteredTerms: Observable<string[]>[] = [];
+  dateRangeErrorMatcher = new DateRangeErrorMatch();
 
   _FieldType = FieldType;
 
@@ -41,7 +52,7 @@ export class SearchRequestComponent implements OnInit {
     this.addQueryBlock();
 
     this.rawSearchForm = this.fb.group({
-      query: ['', jsonValidation]
+      query: [ '', jsonValidation ]
     });
   }
 
@@ -160,7 +171,7 @@ export class SearchRequestComponent implements OnInit {
     this.queryBlocks.patchValue(values);
   }
 
-  copyFromRawView() {
+  importFromRawView() {
     this.fromJSON(JSON.parse(this.rawSearchForm.get('query').value));
   }
 
@@ -181,10 +192,13 @@ export class SearchRequestComponent implements OnInit {
         query.term[field] = queryBlock.get('term').value;
       } else if (requestType === 'range') {
         query.range = {};
-        query.range[field] = {
-          gt: queryBlock.get('dateRange.from').value,
-          lt: queryBlock.get('dateRange.to').value
-        };
+        query.range[field] = {};
+        if (queryBlock.get('dateRange.from').value) {
+          query.range[field].gt = queryBlock.get('dateRange.from').value;
+        }
+        if (queryBlock.get('dateRange.to').value) {
+          query.range[field].lt = queryBlock.get('dateRange.to').value;
+        }
       } else if (requestType === 'exists') {
         query.exists = {
           field: field
@@ -201,7 +215,7 @@ export class SearchRequestComponent implements OnInit {
     return result;
   }
 
-  copyFromQueryBuilder() {
+  importFromQueryBuilder() {
     this.rawSearchForm.get('query').setValue(JSON.stringify(this.toJSON(), null, 4));
   }
 
@@ -210,19 +224,24 @@ export class SearchRequestComponent implements OnInit {
   }
 
   rawSearch() {
-    console.log('rawsearch');
     this.router.navigate(['/documentlist', { query: this.rawSearchForm.get('query').value }]);
   }
 }
 
-function dateRangeValidation(dateFromSelectionControl: AbstractControl, dateToSelectionControl: AbstractControl): ValidatorFn {
+function dateRangeValidation(from: AbstractControl, to: AbstractControl): ValidatorFn {
   return () => {
-    if (dateFromSelectionControl.value >= dateToSelectionControl.value) {
+    if (from.value && to.value && from.value >= to.value) {
       return { 'range': true };
     }
 
     return null;
   };
+}
+
+class DateRangeErrorMatch implements ErrorStateMatcher {
+  isErrorState(control: FormControl, form: FormGroupDirective | NgForm): boolean {
+    return !!(control && (control.dirty || control.touched) && control.parent.errors);
+  }
 }
 
 function jsonValidation(c: AbstractControl): {[key: string]: boolean} | null  {
@@ -243,8 +262,8 @@ export interface TermQuery {
 
 export interface RangeQuery {
   [key: string]: {
-    gt: any;
-    lt: any;
+    gt?: any;
+    lt?: any;
   };
 }
 
