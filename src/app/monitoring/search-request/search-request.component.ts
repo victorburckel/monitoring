@@ -8,7 +8,8 @@ import {
   AbstractControl,
   ValidatorFn,
   FormGroupDirective,
-  NgForm
+  NgForm,
+  ValidationErrors
 } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { startWith, map, switchMap, tap, filter } from 'rxjs/operators';
@@ -32,7 +33,8 @@ export class SearchRequestComponent implements OnInit {
   searchForm: FormGroup;
   availableColumns: FieldDefinition[];
   filteredTerms: Observable<string[]>[] = [];
-  dateRangeErrorMatcher = new DateRangeErrorMatch();
+  dateRangeErrorMatcher = new RangeErrorMatcher('daterange');
+  timeRangeErrorMatcher = new RangeErrorMatcher('timerange');
 
   rawText: string;
 
@@ -62,8 +64,14 @@ export class SearchRequestComponent implements OnInit {
       requestType: [ '', [ Validators.required ] ],
       term: '',
       dateRange: this.fb.group({
-        from: '',
-        to: ''
+        from: this.fb.group({
+          date: '',
+          time: ''
+        }),
+        to: this.fb.group({
+          date: '',
+          time: ''
+        })
       })
     });
   }
@@ -104,12 +112,12 @@ export class SearchRequestComponent implements OnInit {
 
     switch (requestType) {
       case 'term':
-      queryBlock.get('term').setValidators(Validators.required);
-      break;
+        queryBlock.get('term').setValidators(Validators.required);
+        break;
       case 'range':
-      queryBlock.get('dateRange').setValidators([
-          Validators.required,
-           dateRangeValidation(queryBlock.get('dateRange.from'), queryBlock.get('dateRange.to'))]);
+        queryBlock.get('dateRange.from').setValidators(dateTimeValidation);
+        queryBlock.get('dateRange.to').setValidators(dateTimeValidation);
+        queryBlock.get('dateRange').setValidators(dateTimeRangeValidation);
         break;
     }
 
@@ -117,39 +125,16 @@ export class SearchRequestComponent implements OnInit {
     queryBlock.get('dateRange').updateValueAndValidity();
   }
 
-  parseQueryBlock(query: QueryBlock, includeExclude: string) {
-    const getFieldByRequestName = x => this.availableColumns.find(column => column.RequestName === x);
-
-    if (query.term) {
-      return {
-        field: getFieldByRequestName(Object.keys(query.term)[0]),
-        includeExclude: includeExclude,
-        requestType: 'term',
-        term: query.term[Object.keys(query.term)[0]]
-      };
-    } else if (query.range) {
-      return {
-        field: getFieldByRequestName(Object.keys(query.range)[0]),
-        includeExclude: includeExclude,
-        requestType: 'range',
-        range: {
-          lt: query.range[Object.keys(query.range)[0]].lt,
-          gt: query.range[Object.keys(query.range)[0]].gt
-        }
-      };
-    } else if (query.exists) {
-      return {
-        field: getFieldByRequestName(query.exists.field),
-        includeExclude: includeExclude,
-        requestType: 'exists',
-      };
-    }
-
-    return {};
-  }
-
   isRawTextValid() {
     return this.rawEditor.getEditor().session.getAnnotations().length === 0;
+  }
+
+  minDate(index: number) {
+    return this.control('dateRange.dateFrom', index).value;
+  }
+
+  maxDate(index: number) {
+    return this.control('dateRange.dateTo', index).value;
   }
 
   toJSON(): any {
@@ -170,11 +155,13 @@ export class SearchRequestComponent implements OnInit {
       } else if (requestType === 'range') {
         query.range = {};
         query.range[field] = {};
-        if (queryBlock.get('dateRange.from').value) {
-          query.range[field].gt = queryBlock.get('dateRange.from').value;
+        const from = queryBlock.get('dateRange.from.date').value;
+        if (from) {
+          query.range[field].gt = new Date(from.getTime() + getTimeInSeconds(queryBlock.get('dateRange.from.time').value));
         }
-        if (queryBlock.get('dateRange.to').value) {
-          query.range[field].lt = queryBlock.get('dateRange.to').value;
+        const to = queryBlock.get('dateRange.to.date').value;
+        if (to) {
+          query.range[field].lt = new Date(from.getTime() + getTimeInSeconds(queryBlock.get('dateRange.to.time').value));
         }
       } else if (requestType === 'exists') {
         query.exists = {
@@ -205,19 +192,50 @@ export class SearchRequestComponent implements OnInit {
   }
 }
 
-function dateRangeValidation(from: AbstractControl, to: AbstractControl): ValidatorFn {
-  return () => {
-    if (from.value && to.value && from.value >= to.value) {
-      return { 'range': true };
+function dateTimeRangeValidation(c: AbstractControl): ValidationErrors | null {
+  const group = <FormGroup>c;
+  const dateFrom = group.get('from.date');
+  const dateTo = group.get('to.date');
+  const timeFrom = group.get('from.time');
+  const timeTo = group.get('to.time');
+
+  if (dateFrom.value && dateTo.value) {
+    if (dateFrom.value > dateTo.value) {
+      return { 'daterange': true };
     }
 
-    return null;
-  };
+    if (dateFrom.value.valueOf() === dateTo.value.valueOf() && timeFrom.value > timeTo.value) {
+      return { 'timerange': true };
+    }
+  }
+
+  return null;
 }
 
-class DateRangeErrorMatch implements ErrorStateMatcher {
+function getTimeInSeconds(time: string): number {
+  const splitted = time.split(':');
+  return splitted.reduce((acc, t) => (60 * acc) + +t, 0) * (splitted.length === 2 ? 60 : 1 ) * 1000;
+}
+
+function dateTimeValidation(c: AbstractControl): ValidationErrors | null {
+  const group = <FormGroup>c;
+  const date = group.get('date');
+  const time = group.get('time');
+
+  if (time.value && !date.value) {
+    return { 'datetime': true };
+  }
+
+  return null;
+}
+
+class RangeErrorMatcher implements ErrorStateMatcher {
+  constructor(private errorCode: string) {
+  }
+
   isErrorState(control: FormControl, form: FormGroupDirective | NgForm): boolean {
-    return !!(control && (control.dirty || control.touched) && control.parent.errors);
+    return !!(control && (control.dirty || control.touched) &&
+      (control.parent.parent.hasError(this.errorCode) || control.parent.hasError('datetime')));
   }
 }
 
