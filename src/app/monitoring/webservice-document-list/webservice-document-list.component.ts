@@ -4,10 +4,8 @@ import { MatPaginator, MatSort, MatTable, MatDialog, MatSnackBar } from '@angula
 import { FormControl } from '@angular/forms';
 import { MonitoringService, FieldDefinition, FieldType } from '../monitoring.service';
 import { MonitoringDocument, WebServiceDocument } from '../monitoring-document';
-import { Observable } from 'rxjs/Observable';
+import { Observable ,  merge, of } from 'rxjs';
 import { startWith, switchMap, map, tap, debounceTime, catchError } from 'rxjs/operators';
-import 'rxjs/add/observable/of';
-import { merge } from 'rxjs/observable/merge';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { DocumentViewDialogComponent } from './document-view-dialog.component';
 import { WebserviceDocumentViewDialogComponent } from './webservice-document-view-dialog.component';
@@ -71,7 +69,7 @@ export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
               }
 
               this.snackBar.open(message, null, { duration: 5000 });
-              return Observable.of({ hits: [], total: 0 });
+              return of({ hits: [], total: 0 });
             })
           );
       }),

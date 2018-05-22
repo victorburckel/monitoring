@@ -11,11 +11,9 @@ import {
   NgForm,
   ValidationErrors
 } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
+import { Observable, defer, of, combineLatest } from 'rxjs';
 import { startWith, map, switchMap, tap, filter, catchError } from 'rxjs/operators';
-import 'rxjs/add/observable/defer';
-import 'rxjs/add/observable/combineLatest';
-import 'rxjs/add/operator/filter';
+
 import { FieldDefinition, MonitoringService, FieldType } from '../monitoring.service';
 import { Router } from '@angular/router';
 import { MatTabGroup, ErrorStateMatcher } from '@angular/material';
@@ -86,7 +84,7 @@ export class SearchRequestComponent implements OnInit {
       values: undefined
     };
 
-    const terms = Observable.defer(() => queryBlock.get('field').valueChanges.pipe(
+    const terms = defer(() => queryBlock.get('field').valueChanges.pipe(
       startWith(queryBlock.get('field').value),
       filter((field: FieldDefinition) => field.Type === FieldType.String),
       switchMap((field: FieldDefinition) => {
@@ -95,14 +93,14 @@ export class SearchRequestComponent implements OnInit {
         return this.monitoringService.terms(field.RequestName).pipe(
           catchError(() => {
             filteredTerms.isInError = true;
-            return Observable.of(<string[]>[]);
+            return of(<string[]>[]);
           }),
           tap(() => filteredTerms.isLoading = false)
         );
       })
     ));
 
-    filteredTerms.values = Observable.combineLatest(
+    filteredTerms.values = combineLatest(
       terms,
       queryBlock.get('term').valueChanges.pipe(startWith('')),
       (t, v) => ({ Terms: t, Value: v })

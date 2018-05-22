@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/map';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+
 import { WebServiceDocument, PricingDocument } from './monitoring-document';
 
 @Injectable()
@@ -29,15 +30,15 @@ export class MonitoringService {
       query.sort = sortCriteria;
     }
 
-    return this.http.post<any>(`${this.url}/monitoring/_search`, query)
-      .map(x => ({
+    return this.http.post<any>(`${this.url}/monitoring/_search`, query).pipe(
+      map(x => ({
         total: x.hits.total,
         hits: x.hits.hits.map(h => {
           const doc = h._source;
           doc._id = h._id;
           return doc;
         })
-      }));
+      })));
   }
 
   fields(): FieldDefinition[] {
@@ -67,8 +68,8 @@ export class MonitoringService {
       },
       size: 0
     };
-    return this.http.post<any>(`${this.url}/monitoring/_search`, query)
-      .map(x => x.aggregations.agg.buckets.map(a => a.key));
+    return this.http.post<any>(`${this.url}/monitoring/_search`, query).pipe(
+      map(x => x.aggregations.agg.buckets.map(a => a.key)));
   }
 
 }
