@@ -58,11 +58,11 @@ export class MonitoringService {
     ];
   }
 
-  terms(column: string): Observable<string[]> {
+  terms(column: string, size = 100): Observable<string[]> {
     const query = {
       aggs: {
         agg: {
-          terms: { field: column }
+          terms: { field: column, size: size }
         }
       },
       size: 0

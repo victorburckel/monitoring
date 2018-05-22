@@ -12,7 +12,7 @@ import {
   ValidationErrors
 } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
-import { startWith, map, switchMap, tap, filter } from 'rxjs/operators';
+import { startWith, map, switchMap, tap, filter, catchError } from 'rxjs/operators';
 import 'rxjs/add/observable/defer';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/operator/filter';
@@ -32,7 +32,7 @@ import { MatTabGroup, ErrorStateMatcher } from '@angular/material';
 export class SearchRequestComponent implements OnInit {
   searchForm: FormGroup;
   availableColumns: FieldDefinition[];
-  filteredTerms: Observable<string[]>[] = [];
+  filteredTerms: { values: Observable<string[]>, isLoading: boolean, isInError: boolean }[] = [];
   dateRangeErrorMatcher = new RangeErrorMatcher('daterange');
   timeRangeErrorMatcher = new RangeErrorMatcher('timerange');
 
@@ -80,19 +80,37 @@ export class SearchRequestComponent implements OnInit {
     const queryBlock = this.buildQueryBlock();
     this.queryBlocks.push(queryBlock);
 
+    const filteredTerms = {
+      isLoading: false,
+      isInError: false,
+      values: undefined
+    };
+
     const terms = Observable.defer(() => queryBlock.get('field').valueChanges.pipe(
       startWith(queryBlock.get('field').value),
       filter((field: FieldDefinition) => field.Type === FieldType.String),
-      switchMap((field: FieldDefinition) => this.monitoringService.terms(field.RequestName)),
+      switchMap((field: FieldDefinition) => {
+        filteredTerms.isLoading = true;
+        filteredTerms.isInError = false;
+        return this.monitoringService.terms(field.RequestName).pipe(
+          catchError(() => {
+            filteredTerms.isInError = true;
+            return Observable.of(<string[]>[]);
+          }),
+          tap(() => filteredTerms.isLoading = false)
+        );
+      })
     ));
 
-    this.filteredTerms.push(Observable.combineLatest(
+    filteredTerms.values = Observable.combineLatest(
       terms,
       queryBlock.get('term').valueChanges.pipe(startWith('')),
       (t, v) => ({ Terms: t, Value: v })
     ).pipe(
       map(x => x.Terms.filter(term => term.toLowerCase().indexOf(x.Value.toLowerCase()) === 0))
-    ));
+    );
+
+    this.filteredTerms.push(filteredTerms);
 
     queryBlock.get('requestType').valueChanges.subscribe(x => this.setRequestType(x, queryBlock));
   }

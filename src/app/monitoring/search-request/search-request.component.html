@@ -43,11 +43,13 @@
                       <mat-form-field>
                         <input matInput type="text" [matAutocomplete]="auto" formControlName="term">
                         <mat-autocomplete #auto="matAutocomplete">
-                          <mat-option *ngFor="let term of filteredTerms[i] | async" [value]="term">
+                          <mat-option *ngFor="let term of filteredTerms[i].values | async" [value]="term">
                             {{ term }}
                           </mat-option>
                         </mat-autocomplete>
-                        <mat-error >Term is required</mat-error>
+                        <mat-error>Term is required</mat-error>
+                        <mat-spinner matSuffix diameter=20 *ngIf="filteredTerms[i].isLoading"></mat-spinner>
+                        <mat-hint *ngIf="filteredTerms[i].isInError">Autocomplete not available</mat-hint>
                       </mat-form-field>
                     </ng-container>
 
