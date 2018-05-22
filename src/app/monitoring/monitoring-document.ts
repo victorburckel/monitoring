@@ -1,6 +1,7 @@
 export interface MonitoringDocument {
     _id: string;
     _parentDocumentIds: string[];
+    type: string;
     submitted: Date;
     ended: Date;
     status: string;
@@ -14,6 +15,8 @@ export interface WebServiceDocument extends MonitoringDocument {
     service: string;
     input_size: number;
     output_size: number;
+    error?: string;
+    after_send_error?: string;
 }
 
 export interface PricingDocument extends MonitoringDocument {

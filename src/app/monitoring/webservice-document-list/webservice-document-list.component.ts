@@ -10,6 +10,7 @@ import 'rxjs/add/observable/of';
 import { merge } from 'rxjs/observable/merge';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { DocumentViewDialogComponent } from './document-view-dialog.component';
+import { WebserviceDocumentViewDialogComponent } from './webservice-document-view-dialog.component';
 
 
 @Component({
@@ -86,9 +87,16 @@ export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
   }
 
   viewRawDocument(element: MonitoringDocument): void {
-    this.dialog.open(DocumentViewDialogComponent, {
-      data: { document: element }
-    });
+    switch (element.type) {
+      case 'webservice': this.dialog.open(WebserviceDocumentViewDialogComponent, {
+          data: { document: element }
+        });
+        break;
+      default: this.dialog.open(DocumentViewDialogComponent, {
+          data: { document: element }
+        });
+        break;
+    }
   }
 
   viewSubDocuments(element: MonitoringDocument): void {

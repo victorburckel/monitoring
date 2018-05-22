@@ -34,6 +34,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { StoreSizePipe } from './shared/store-size.pipe';
 import { DocumentViewDialogComponent } from './monitoring/webservice-document-list/document-view-dialog.component';
+import { WebserviceDocumentViewDialogComponent } from './monitoring/webservice-document-list/webservice-document-view-dialog.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { DocumentViewDialogComponent } from './monitoring/webservice-document-li
     MatInput,
     SearchRequestComponent,
     StoreSizePipe,
-    DocumentViewDialogComponent
+    DocumentViewDialogComponent,
+    WebserviceDocumentViewDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -72,7 +74,10 @@ import { DocumentViewDialogComponent } from './monitoring/webservice-document-li
     AceEditorModule
   ],
   providers: [MonitoringService],
-  entryComponents: [DocumentViewDialogComponent],
+  entryComponents: [
+    DocumentViewDialogComponent,
+    WebserviceDocumentViewDialogComponent
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
