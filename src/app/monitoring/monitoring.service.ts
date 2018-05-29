@@ -12,6 +12,7 @@ export class MonitoringService {
   constructor(private http: HttpClient) { }
 
   private url = 'http://localhost:9200';
+  private monitoring = 'monitoring';
 
   search(q: any, sortColumn: string, sortOrder: string, pageIndex: number, pageSize: number)
   : Observable<{ total: number, hits: WebServiceDocument[] }> {
@@ -30,7 +31,7 @@ export class MonitoringService {
       query.sort = sortCriteria;
     }
 
-    return this.http.post<any>(`${this.url}/monitoring/_search`, query).pipe(
+    return this.http.post<any>(`${this.url}/${this.monitoring}/_search`, query).pipe(
       map(x => ({
         total: x.hits.total,
         hits: x.hits.hits.map(h => {
@@ -42,20 +43,74 @@ export class MonitoringService {
   }
 
   fields(): FieldDefinition[] {
+    const keywordSuffix = '.keyword';
+
     return [
-      { Name: 'submitted', RequestName: 'submitted', DisplayName: 'Submitted', Type: FieldType.Date },
-      { Name: 'ended', RequestName: 'ended', DisplayName: 'Ended', Type: FieldType.Date },
-      { Name: 'duration', RequestName: 'duration', DisplayName: 'Duration', Type: FieldType.Duration },
-      { Name: 'status', RequestName: 'status.keyword', DisplayName: 'Status', Type: FieldType.String },
-      { Name: 'service', RequestName: 'service.keyword', DisplayName: 'Service', Type: FieldType.String },
-      { Name: 'operation', RequestName: 'operation.keyword', DisplayName: 'Operation', Type: FieldType.String },
-      { Name: 'client_application', RequestName: 'client_application.keyword', DisplayName: 'Client Application', Type: FieldType.String },
-      { Name: 'client_hostname', RequestName: 'client_hostname.keyword', DisplayName: 'Client Hostname', Type: FieldType.String },
-      { Name: 'input_size', RequestName: 'input_size', DisplayName: 'Input Size', Type: FieldType.StoreSize },
-      { Name: 'output_size', RequestName: 'output_size', DisplayName: 'Output Size', Type: FieldType.StoreSize },
-      { Name: 'error', RequestName: 'error.keyword', DisplayName: 'Error', Type: FieldType.String },
-      { Name: 'after_send_error', RequestName: 'after_send_error.keyword', DisplayName: 'After Send Error', Type: FieldType.String },
-      { Name: 'type', RequestName: 'type.keyword', DisplayName: 'Type', Type: FieldType.String }
+      {
+        Name: 'submitted',
+        RequestName: 'submitted',
+        DisplayName: 'Submitted',
+        Type: FieldType.Date },
+      {
+        Name: 'ended',
+        RequestName: 'ended',
+        DisplayName: 'Ended',
+        Type: FieldType.Date },
+      {
+        Name: 'duration',
+        RequestName: 'duration',
+        DisplayName: 'Duration',
+        Type: FieldType.Duration },
+      {
+        Name: 'status',
+        RequestName: `status${keywordSuffix}`,
+        DisplayName: 'Status',
+        Type: FieldType.String },
+      {
+        Name: 'service',
+        RequestName: `service${keywordSuffix}`,
+        DisplayName: 'Service',
+        Type: FieldType.String },
+      {
+        Name: 'operation',
+        RequestName: `operation${keywordSuffix}`,
+        DisplayName: 'Operation',
+        Type: FieldType.String },
+      {
+        Name: 'client_application',
+        RequestName: `client_application${keywordSuffix}`,
+        DisplayName: 'Client Application',
+        Type: FieldType.String },
+      {
+        Name: 'client_hostname',
+        RequestName: `client_hostname${keywordSuffix}`,
+        DisplayName: 'Client Hostname',
+        Type: FieldType.String },
+      {
+        Name: 'input_size',
+        RequestName: 'input_size',
+        DisplayName: 'Input Size',
+        Type: FieldType.StoreSize },
+      {
+        Name: 'output_size',
+        RequestName: 'output_size',
+        DisplayName: 'Output Size',
+        Type: FieldType.StoreSize },
+      {
+        Name: 'error',
+        RequestName: `error${keywordSuffix}`,
+        DisplayName: 'Error',
+         Type: FieldType.String },
+      {
+        Name: 'after_send_error',
+        RequestName: `after_send_error${keywordSuffix}`,
+        DisplayName: 'After Send Error',
+        Type: FieldType.String },
+      {
+        Name: 'type',
+        RequestName: 'type${keywordSuffix}',
+        DisplayName: 'Type',
+        Type: FieldType.String }
     ];
   }
 
@@ -68,7 +123,7 @@ export class MonitoringService {
       },
       size: 0
     };
-    return this.http.post<any>(`${this.url}/monitoring/_search`, query).pipe(
+    return this.http.post<any>(`${this.url}/${this.monitoring}/_search`, query).pipe(
       map(x => x.aggregations.agg.buckets.map(a => a.key)));
   }
 
