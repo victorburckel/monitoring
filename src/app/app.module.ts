@@ -27,15 +27,15 @@ import { AceEditorModule } from 'ng2-ace-editor';
 import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
-import { MonitoringDocumentListComponent } from './monitoring/webservice-document-list/webservice-document-list.component';
+import { MonitoringDocumentListComponent } from './monitoring/monitoring-document-list/monitoring-document-list.component';
 import { MonitoringService } from './monitoring/monitoring.service';
 import { DurationPipe } from './shared/duration.pipe';
 import { SearchRequestComponent } from './monitoring/search-request/search-request.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { StoreSizePipe } from './shared/store-size.pipe';
-import { DocumentViewDialogComponent } from './monitoring/webservice-document-list/document-view-dialog.component';
-import { RequestViewEditDialogComponent } from './monitoring/webservice-document-list/request-view-edit-dialog.component';
+import { DocumentViewDialogComponent } from './monitoring/monitoring-document-list/document-view-dialog.component';
+import { RequestViewEditDialogComponent } from './monitoring/monitoring-document-list/request-view-edit-dialog.component';
 
 @NgModule({
   declarations: [

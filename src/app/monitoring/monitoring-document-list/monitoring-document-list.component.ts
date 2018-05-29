@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatPaginator, MatSort, MatTable, MatDialog, MatSnackBar } from '@angular/material';
 import { FormControl } from '@angular/forms';
@@ -11,9 +12,9 @@ import { DocumentViewDialogComponent } from './document-view-dialog.component';
 
 
 @Component({
-  selector: 'mon-webservice-document-list',
-  templateUrl: './webservice-document-list.component.html',
-  styleUrls: ['./webservice-document-list.component.css']
+  selector: 'mon-monitoring-document-list',
+  templateUrl: './monitoring-document-list.component.html',
+  styleUrls: ['./monitoring-document-list.component.css']
 })
 export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
   availableColumns: FieldDefinition[];
@@ -31,6 +32,7 @@ export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
 
   constructor(
     private monitoringService: MonitoringService,
+    private location: Location,
     private route: ActivatedRoute,
     private router: Router,
     public dialog: MatDialog,
@@ -96,5 +98,9 @@ export class MonitoringDocumentListComponent implements OnInit, AfterViewInit {
       ]
     };
     this.router.navigate(['documentlist', { query: JSON.stringify(query) }]);
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

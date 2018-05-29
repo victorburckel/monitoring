@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { MonitoringDocumentListComponent } from './monitoring/webservice-document-list/webservice-document-list.component';
+import { MonitoringDocumentListComponent } from './monitoring/monitoring-document-list/monitoring-document-list.component';
 
 const routes: Routes = [
   { path: 'documentlist', component: MonitoringDocumentListComponent },

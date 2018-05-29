@@ -40,7 +40,10 @@ export class SearchRequestComponent implements OnInit {
 
   _FieldType = FieldType;
 
-  rawEditorOptions = { useWorker: false };
+  rawEditorOptions = {
+    useWorker: false,
+    showPrintMargin: false
+  };
 
   get queryBlocks(): FormArray {
     return <FormArray>this.searchForm.get('queryBlocks');

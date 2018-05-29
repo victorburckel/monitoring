@@ -10,7 +10,10 @@ import 'brace/theme/textmate';
 })
 export class RequestViewEditDialogComponent implements OnInit {
   viewMode = true;
-  requestEditorOptions = { useWorker: false };
+  requestEditorOptions = {
+    useWorker: false,
+    showPrintMargin: false
+  };
 
   constructor(
     public dialogRef: MatDialogRef<RequestViewEditDialogComponent>,

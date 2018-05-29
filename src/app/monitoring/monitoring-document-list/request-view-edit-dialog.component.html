@@ -9,7 +9,7 @@
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button type="button" (click)="toggleViewEditMode()">
-    <mat-icon>{{ viewMode ? 'edit' : 'keyboard_arrow_left' }}</mat-icon>
+    <mat-icon>{{ viewMode ? 'edit' : 'navigate_before' }}</mat-icon>
     <span>{{ viewMode ? 'Edit' : 'View' }}</span>
   </button>
   <button [disabled]="!isRequestValid()" mat-button type="button" (click)="replayRequest()">
