@@ -126,7 +126,8 @@
     "@schematics/angular:component": {
       "inlineStyle": true,
       "prefix": "mon",
-      "styleext": "css"
+      "styleext": "css",
+      "spec": false
     },
     "@schematics/angular:directive": {
       "prefix": "mon"
