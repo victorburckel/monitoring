@@ -115,7 +115,12 @@
         </ng-template>
         <mat-card>
           <mat-card-content>
-            <ace-editor #rawEditor  [(text)]="rawText" [mode]="'javascript'" theme="textmate" style="min-height: 150px; width:100%; overflow: auto;"></ace-editor>
+            <ace-editor
+              [(text)]="rawText" 
+              mode="json" 
+              theme="textmate"
+              [options]="rawEditorOptions" 
+              style="min-height: 150px; width:100%; overflow: auto;"></ace-editor>
           </mat-card-content>
           <mat-card-actions>
             <button [disabled]="!searchForm.valid" mat-button type="button" (click)="importFromQueryBuilder()">

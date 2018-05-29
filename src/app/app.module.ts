@@ -20,6 +20,7 @@ import {
   MatDialogModule,
   MatTabsModule,
   MatSnackBarModule} from '@angular/material';
+import { MatTreeModule } from '@angular/material/tree';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AceEditorModule } from 'ng2-ace-editor';
 
@@ -34,7 +35,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { StoreSizePipe } from './shared/store-size.pipe';
 import { DocumentViewDialogComponent } from './monitoring/webservice-document-list/document-view-dialog.component';
-import { WebserviceDocumentViewDialogComponent } from './monitoring/webservice-document-list/webservice-document-view-dialog.component';
+import { RequestViewEditDialogComponent } from './monitoring/webservice-document-list/request-view-edit-dialog.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,7 @@ import { WebserviceDocumentViewDialogComponent } from './monitoring/webservice-d
     SearchRequestComponent,
     StoreSizePipe,
     DocumentViewDialogComponent,
-    WebserviceDocumentViewDialogComponent
+    RequestViewEditDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -71,12 +72,13 @@ import { WebserviceDocumentViewDialogComponent } from './monitoring/webservice-d
     MatDialogModule,
     MatTabsModule,
     MatSnackBarModule,
+    MatTreeModule,
     AceEditorModule
   ],
   providers: [MonitoringService],
   entryComponents: [
     DocumentViewDialogComponent,
-    WebserviceDocumentViewDialogComponent
+    RequestViewEditDialogComponent
   ],
   bootstrap: [AppComponent]
 })

@@ -17,6 +17,8 @@ import { startWith, map, switchMap, tap, filter, catchError } from 'rxjs/operato
 import { FieldDefinition, MonitoringService, FieldType } from '../monitoring.service';
 import { Router } from '@angular/router';
 import { MatTabGroup, ErrorStateMatcher } from '@angular/material';
+import 'brace/mode/json';
+import 'brace/theme/textmate';
 
 @Component({
   selector: 'mon-search-request',
@@ -38,7 +40,7 @@ export class SearchRequestComponent implements OnInit {
 
   _FieldType = FieldType;
 
-  @ViewChild('rawEditor') rawEditor;
+  rawEditorOptions = { useWorker: false };
 
   get queryBlocks(): FormArray {
     return <FormArray>this.searchForm.get('queryBlocks');
@@ -141,8 +143,13 @@ export class SearchRequestComponent implements OnInit {
     queryBlock.get('dateRange').updateValueAndValidity();
   }
 
-  isRawTextValid() {
-    return this.rawEditor.getEditor().session.getAnnotations().length === 0;
+  isRawTextValid(): boolean {
+    try {
+      JSON.parse(this.rawText);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   minDate(index: number) {

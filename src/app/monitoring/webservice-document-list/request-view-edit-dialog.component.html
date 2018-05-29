@@ -1,0 +1,19 @@
+<mat-dialog-content>
+  <ace-editor
+    [(text)]="data.request" 
+    mode="xml" 
+    [readOnly]="viewMode" 
+    theme="textmate" 
+    [options]="requestEditorOptions"
+    style="min-height: 300px; width:100%; overflow: auto;"></ace-editor>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button type="button" (click)="toggleViewEditMode()">
+    <mat-icon>{{ viewMode ? 'edit' : 'keyboard_arrow_left' }}</mat-icon>
+    <span>{{ viewMode ? 'Edit' : 'View' }}</span>
+  </button>
+  <button [disabled]="!isRequestValid()" mat-button type="button" (click)="replayRequest()">
+    <mat-icon>play_arrow</mat-icon>
+    Execute
+  </button>
+</mat-dialog-actions>
