@@ -2,6 +2,9 @@ import { Component, OnInit, Inject, ViewChild, AfterViewInit } from '@angular/co
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import 'brace/mode/xml';
 import 'brace/theme/textmate';
+import 'brace/ext/searchbox';
+import 'brace/ext/beautify';
+import 'brace/ext/language_tools';
 
 @Component({
   selector: 'mon-request-view-edit-dialog',
@@ -14,7 +17,12 @@ export class RequestViewEditDialogComponent implements OnInit {
   viewMode = true;
   requestEditorOptions = {
     useWorker: false,
-    showPrintMargin: false
+    showPrintMargin: false,
+    maxLines: Infinity,
+    enableBasicAutocompletion: true,
+    enableSnippets: true,
+    enableLiveAutocompletion: true,
+    wrap: true
   };
 
   constructor(
