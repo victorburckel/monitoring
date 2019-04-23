@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import {DragDropModule, CdkDrag} from '@angular/cdk/drag-drop';
 import {
   MatExpansionModule,
   MatTableModule,
@@ -73,7 +74,8 @@ import { RequestViewEditDialogComponent } from './monitoring/monitoring-document
     MatTabsModule,
     MatSnackBarModule,
     MatTreeModule,
-    AceEditorModule
+    AceEditorModule,
+    DragDropModule
   ],
   providers: [MonitoringService],
   entryComponents: [

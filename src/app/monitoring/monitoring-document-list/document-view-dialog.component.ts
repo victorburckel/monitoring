@@ -28,6 +28,10 @@ export class Node {
     margin-top: 0;
     margin-bottom: 0;
     list-style-type: none;
+  }
+
+  [mat-dialog-title] {
+    cursor: move;
   }`]
 })
 export class DocumentViewDialogComponent implements OnInit {

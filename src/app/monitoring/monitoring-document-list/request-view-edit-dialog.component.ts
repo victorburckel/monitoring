@@ -6,7 +6,9 @@ import 'brace/theme/textmate';
 @Component({
   selector: 'mon-request-view-edit-dialog',
   templateUrl: './request-view-edit-dialog.component.html',
-  styles: []
+  styles: [`[mat-dialog-title] {
+    cursor: move;
+  }`]
 })
 export class RequestViewEditDialogComponent implements OnInit {
   viewMode = true;
